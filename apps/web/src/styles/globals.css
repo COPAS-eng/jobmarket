@@ -18,7 +18,8 @@
   }
 
   body {
-    @apply bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-50 font-body antialiased;
+    @apply bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-50 antialiased;
+    font-family: 'DM Sans', sans-serif;
   }
 
   html {

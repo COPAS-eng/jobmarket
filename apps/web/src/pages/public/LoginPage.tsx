@@ -10,7 +10,7 @@ import { Card } from '@/components/ui/Card';
 import { useToast } from '@/components/ui/Toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/utils/cn';
-import { loginSchema } from '@jobmarket/shared/validators';
+import { loginSchema } from '@/shared/validators';
 import {
   Mail,
   Lock,

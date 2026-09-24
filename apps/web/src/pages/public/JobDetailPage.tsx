@@ -21,7 +21,7 @@ import {
   Bookmark,
   Loader2,
 } from 'lucide-react';
-import { Job } from '@jobmarket/shared/types';
+import { Job } from '@/shared/types';
 import { jobsApi } from '@/services/api';
 import { useToast } from '@/components/ui/Toast';
 

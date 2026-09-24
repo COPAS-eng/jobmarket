@@ -204,13 +204,13 @@ export function LandingPage() {
                   
                   <div className="flex flex-wrap items-center gap-4">
                     <Button size="lg" asChild>
-                      <Link href="/cadastro?role=professional">
+                      <Link to="/cadastro?role=professional">
                         <ArrowRight className="h-5 w-5 mr-2" />
                         Começar como Profissional
                       </Link>
                     </Button>
                     <Button size="lg" variant="secondary" asChild>
-                      <Link href="/cadastro?role=employer">
+                      <Link to="/cadastro?role=employer">
                         Contratar Talentos
                       </Link>
                     </Button>
@@ -486,13 +486,13 @@ export function LandingPage() {
                 </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                   <Button size="lg" className="w-full sm:w-auto" asChild>
-                    <Link href="/cadastro?role=professional">
+                    <Link to="/cadastro?role=professional">
                       <ArrowRight className="h-5 w-5 mr-2" />
                       Criar conta gratuita
                     </Link>
                   </Button>
                   <Button size="lg" variant="ghost" className="w-full sm:w-auto border-slate-700 hover:bg-slate-800 text-white" asChild>
-                    <Link href="/vagas">
+                    <Link to="/vagas">
                       Ver vagas abertas
                     </Link>
                   </Button>
@@ -518,28 +518,28 @@ export function LandingPage() {
             <div>
               <h4 className="font-medium text-white mb-4">Para Profissionais</h4>
               <ul className="space-y-2 text-sm text-slate-400">
-                <li><Link href="/cadastro?role=professional" className="hover:text-cyan-400 transition-colors">Criar perfil</Link></li>
-                <li><Link href="/vagas" className="hover:text-cyan-400 transition-colors">Buscar vagas</Link></li>
-                <li><Link href="/profissionais" className="hover:text-cyan-400 transition-colors">Ver comunidade</Link></li>
-                <li><Link href="/como-funciona" className="hover:text-cyan-400 transition-colors">Como funciona</Link></li>
+                <li><Link to="/cadastro?role=professional" className="hover:text-cyan-400 transition-colors">Criar perfil</Link></li>
+                <li><Link to="/vagas" className="hover:text-cyan-400 transition-colors">Buscar vagas</Link></li>
+                <li><Link to="/profissionais" className="hover:text-cyan-400 transition-colors">Ver comunidade</Link></li>
+                <li><Link to="/como-funciona" className="hover:text-cyan-400 transition-colors">Como funciona</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="font-medium text-white mb-4">Para Empresas</h4>
               <ul className="space-y-2 text-sm text-slate-400">
-                <li><Link href="/cadastro?role=employer" className="hover:text-cyan-400 transition-colors">Postar vaga</Link></li>
-                <li><Link href="/profissionais" className="hover:text-cyan-400 transition-colors">Buscar talentos</Link></li>
-                <li><Link href="/como-funciona" className="hover:text-cyan-400 transition-colors">Como contratar</Link></li>
-                <li><Link href="/precos" className="hover:text-cyan-400 transition-colors">Planos e preços</Link></li>
+                <li><Link to="/cadastro?role=employer" className="hover:text-cyan-400 transition-colors">Postar vaga</Link></li>
+                <li><Link to="/profissionais" className="hover:text-cyan-400 transition-colors">Buscar talentos</Link></li>
+                <li><Link to="/como-funciona" className="hover:text-cyan-400 transition-colors">Como contratar</Link></li>
+                <li><Link to="/precos" className="hover:text-cyan-400 transition-colors">Planos e preços</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="font-medium text-white mb-4">Empresa</h4>
               <ul className="space-y-2 text-sm text-slate-400">
-                <li><Link href="/sobre" className="hover:text-cyan-400 transition-colors">Sobre nós</Link></li>
-                <li><Link href="/blog" className="hover:text-cyan-400 transition-colors">Blog</Link></li>
-                <li><Link href="/carreiras" className="hover:text-cyan-400 transition-colors">Carreiras</Link></li>
-                <li><Link href="/contato" className="hover:text-cyan-400 transition-colors">Contato</Link></li>
+                <li><Link to="/sobre" className="hover:text-cyan-400 transition-colors">Sobre nós</Link></li>
+                <li><Link to="/blog" className="hover:text-cyan-400 transition-colors">Blog</Link></li>
+                <li><Link to="/carreiras" className="hover:text-cyan-400 transition-colors">Carreiras</Link></li>
+                <li><Link to="/contato" className="hover:text-cyan-400 transition-colors">Contato</Link></li>
               </ul>
             </div>
           </div>
@@ -548,13 +548,13 @@ export function LandingPage() {
               © 2025 JobMarket. Todos os direitos reservados.
             </p>
             <div className="flex items-center gap-6">
-              <a href="/privacidade" className="text-sm text-slate-500 hover:text-cyan-400">Privacidade</a>
-              <a href="/termos" className="text-sm text-slate-500 hover:text-cyan-400">Termos</a>
-              <a href="/cookies" className="text-sm text-slate-500 hover:text-cyan-400">Cookies</a>
-</div>
-          </ScrollReveal>
+              <Link to="/privacidade" className="text-sm text-slate-500 hover:text-cyan-400">Privacidade</Link>
+              <Link to="/termos" className="text-sm text-slate-500 hover:text-cyan-400">Termos</Link>
+              <Link to="/cookies" className="text-sm text-slate-500 hover:text-cyan-400">Cookies</Link>
+            </div>
+          </div>
         </div>
-      </section>
+      </footer>
     </div>
-  );
-}
+);
+ }

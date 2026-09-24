@@ -23,7 +23,7 @@ import {
   Briefcase,
   TrendingUp,
 } from 'lucide-react';
-import { Profile, Skill } from '@jobmarket/shared/types';
+import { Profile, Skill } from '@/shared/types';
 import { usersApi } from '@/services/api';
 
 const availabilityLabels: Record<string, string> = {

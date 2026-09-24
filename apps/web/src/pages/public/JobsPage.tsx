@@ -22,7 +22,7 @@ import {
   ChevronRight,
   Loader2,
 } from 'lucide-react';
-import { Job, JobType, JobCategory } from '@jobmarket/shared/types';
+import { Job, JobType, JobCategory } from '@/shared/types';
 import { jobsApi } from '@/services/api';
 
 const jobTypeLabels: Record<JobType, string> = {

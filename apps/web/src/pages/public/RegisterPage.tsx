@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/Badge';
 import { useToast } from '@/components/ui/Toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/utils/cn';
-import { registerSchema, UserRole } from '@jobmarket/shared/validators';
+import { registerSchema, UserRole } from '@/shared/validators';
 import {
   Mail,
   Lock,

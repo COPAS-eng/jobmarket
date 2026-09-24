@@ -159,4 +159,4 @@ import type {
   UpdateProfileInput,
   ProfessionalQueryParams,
   CreatePaymentIntentInput,
-} from '@jobmarket/shared/types';
+} from '@/shared/types';
