@@ -1,0 +1,367 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  PROFISSIONAL
+  EMPREGADOR
+  ADMIN
+}
+
+enum JobType {
+  FREELANCE
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+}
+
+enum JobCategory {
+  DESENVOLVIMENTO
+  DESIGN
+  MARKETING
+  VENDAS
+  ADMINISTRATIVO
+  FINANCEIRO
+  RECURSOS_HUMANOS
+  OPERACOES
+  PRODUTO
+  DADOS
+  OUTROS
+}
+
+enum SkillCategory {
+  PROGRAMACAO
+  FRAMEWORKS
+  FERRAMENTAS
+  DESIGN
+  MARKETING
+  VENDAS
+  GESTAO
+  IDIOMAS
+  OUTROS
+}
+
+enum JobStatus {
+  DRAFT
+  OPEN
+  PAUSED
+  FILLED
+  CLOSED
+  EXPIRED
+}
+
+enum ProposalStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  WITHDRAWN
+}
+
+enum ContractType {
+  FIXED
+  HOURLY
+  MILESTONE
+}
+
+enum ContractStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+  DISPUTED
+}
+
+enum MilestoneStatus {
+  PENDING
+  IN_PROGRESS
+  SUBMITTED
+  APPROVED
+  REJECTED
+  PAID
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+  DISPUTED
+}
+
+enum SubscriptionPlan {
+  FREE
+  PRO
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  PAST_DUE
+  TRIALING
+  INCOMPLETE
+}
+
+enum Availability {
+  FULL_TIME
+  PART_TIME
+  FREELANCE
+  UNAVAILABLE
+}
+
+model User {
+  id              String    @id @default(cuid())
+  email           String    @unique
+  passwordHash    String
+  role            UserRole  @default(PROFISSIONAL)
+  emailVerified   Boolean   @default(false)
+  stripeCustomerId String?
+  stripeAccountId String?
+  lastLoginAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  profile         Profile?
+  subscription    Subscription?
+  proposals       Proposal[]
+  professionalContracts Contract[] @relation("ProfessionalContracts")
+  employerContracts     Contract[] @relation("EmployerContracts")
+  payments        Payment[]
+  skills          ProfileSkill[]
+  
+  @@index([email])
+  @@index([role])
+  @@index([stripeAccountId])
+}
+
+model Profile {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName    String
+  headline    String?
+  bio         String?
+  avatar      String?
+  hourlyRate  Int?
+  availability Availability @default(FREELANCE)
+  location    String?
+  languages   String[]
+  website     String?
+  linkedin    String?
+  github      String?
+  portfolio   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  skills      ProfileSkill[]
+  portfolioItems PortfolioItem[]
+  
+  @@index([userId])
+  @@index([availability])
+  @@index([location])
+}
+
+model Skill {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  category    SkillCategory
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  profiles    ProfileSkill[]
+  jobs        JobSkill[]
+  
+  @@index([category])
+}
+
+model ProfileSkill {
+  id        String   @id @default(cuid())
+  profileId String
+  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  skillId   String
+  skill     Skill    @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  
+  @@unique([profileId, skillId])
+  @@index([skillId])
+}
+
+model Job {
+  id            String     @id @default(cuid())
+  employerId    String
+  employer      User       @relation(fields: [employerId], references: [id], onDelete: Cascade)
+  title         String
+  description   String
+  type          JobType
+  category      JobCategory
+  budgetMin     Int?
+  budgetMax     Int?
+  currency      String     @default("BRL")
+  location      String?
+  remote        Boolean    @default(true)
+  status        JobStatus  @default(OPEN)
+  viewsCount    Int        @default(0)
+  applicationsCount Int    @default(0)
+  expiresAt     DateTime?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  
+  skills        JobSkill[]
+  proposals     Proposal[]
+  contracts     Contract[]
+  
+  @@index([employerId])
+  @@index([status, type])
+  @@index([category, status])
+  @@index([createdAt])
+  @@index([remote, status])
+  @@index([expiresAt])
+}
+
+model JobSkill {
+  id        String   @id @default(cuid())
+  jobId     String
+  job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  skillId   String
+  skill     Skill    @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  
+  @@unique([jobId, skillId])
+  @@index([skillId])
+}
+
+model Proposal {
+  id            String          @id @default(cuid())
+  jobId         String
+  job           Job             @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  professionalId String
+  professional  User            @relation(fields: [professionalId], references: [id], onDelete: Cascade)
+  coverLetter   String
+  proposedRate  Int
+  estimatedDays Int?
+  status        ProposalStatus  @default(PENDING)
+  viewedAt      DateTime?
+  respondedAt   DateTime?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  
+  @@index([jobId])
+  @@index([professionalId])
+  @@index([status])
+  @@unique([jobId, professionalId])
+}
+
+model Contract {
+  id              String         @id @default(cuid())
+  jobId           String
+  job             Job            @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  professionalId  String
+  professional    User           @relation("ProfessionalContracts", fields: [professionalId], references: [id], onDelete: Cascade)
+  employerId      String
+  employer        User           @relation("EmployerContracts", fields: [employerId], references: [id], onDelete: Cascade)
+  agreedRate      Int
+  type            ContractType
+  status          ContractStatus @default(ACTIVE)
+  commissionRate  Float
+  startedAt       DateTime?
+  completedAt     DateTime?
+  cancelledAt     DateTime?
+  terms           String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  
+  milestones      Milestone[]
+  payments        Payment[]
+  
+  @@index([professionalId, status])
+  @@index([employerId, status])
+  @@index([status])
+  @@index([jobId])
+}
+
+model Milestone {
+  id          String          @id @default(cuid())
+  contractId  String
+  contract    Contract        @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  amount      Int
+  dueDate     DateTime?
+  status      MilestoneStatus @default(PENDING)
+  submittedAt DateTime?
+  approvedAt  DateTime?
+  paidAt      DateTime?
+  order       Int
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  
+  payments    Payment[]
+  
+  @@index([contractId])
+  @@index([status])
+}
+
+model Payment {
+  id                String         @id @default(cuid())
+  contractId        String
+  contract          Contract       @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  milestoneId       String?
+  milestone         Milestone?     @relation(fields: [milestoneId], references: [id], onDelete: SetNull)
+  amount            Int
+  platformFee       Int
+  professionalAmount Int
+  status            PaymentStatus  @default(PENDING)
+  stripePaymentIntentId String?
+  stripeTransferId  String?
+  paidAt            DateTime?
+  failedAt          DateTime?
+  failureReason     String?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  
+  @@index([contractId])
+  @@index([stripePaymentIntentId])
+  @@index([status, createdAt])
+  @@index([milestoneId])
+}
+
+model Subscription {
+  id                    String            @id @default(cuid())
+  userId                String            @unique
+  user                  User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan                  SubscriptionPlan  @default(FREE)
+  status                SubscriptionStatus @default(ACTIVE)
+  stripeCustomerId      String?
+  stripeSubscriptionId  String?
+  currentPeriodStart    DateTime
+  currentPeriodEnd      DateTime
+  cancelAtPeriodEnd     Boolean           @default(false)
+  commissionDiscount    Float             @default(0)
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+  
+  @@index([stripeCustomerId])
+  @@index([stripeSubscriptionId])
+  @@index([status])
+}
+
+model PortfolioItem {
+  id          String   @id @default(cuid())
+  profileId   String
+  profile     Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  imageUrl    String
+  projectUrl  String?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([profileId])
+}

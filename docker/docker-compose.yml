@@ -1,0 +1,87 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: jobmarket-postgres
+    environment:
+      POSTGRES_DB: jobmarket
+      POSTGRES_USER: jobmarket
+      POSTGRES_PASSWORD: devpassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jobmarket -d jobmarket"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: jobmarket-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: api-runner
+    container_name: jobmarket-api
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      DATABASE_URL: postgresql://jobmarket:devpassword@postgres:5432/jobmarket?schema=public
+      JWT_SECRET: dev-jwt-secret-key-min-32-characters-long
+      JWT_REFRESH_SECRET: dev-refresh-secret-key-different-from-above
+      JWT_ACCESS_EXPIRY: 15m
+      JWT_REFRESH_EXPIRY: 7d
+      BCRYPT_ROUNDS: 12
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+      STRIPE_CONNECT_CLIENT_ID: ${STRIPE_CONNECT_CLIENT_ID}
+      FRONTEND_URL: http://localhost:5173
+      EMAIL_FROM: noreply@jobmarket.local
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ../apps/api:/app/apps/api
+      - ../packages/shared:/app/packages/shared
+    command: npm run dev
+
+  web:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: web-runner
+    container_name: jobmarket-web
+    environment:
+      VITE_API_URL: http://localhost:3001/api
+      VITE_STRIPE_PUBLISHABLE_KEY: ${VITE_STRIPE_PUBLISHABLE_KEY}
+      VITE_APP_NAME: JobMarket
+    ports:
+      - "5173:5173"
+    depends_on:
+      - api
+    volumes:
+      - ../apps/web:/app/apps/web
+      - ../packages/shared:/app/packages/shared
+    command: npm run dev
+
+volumes:
+  pgdata:
+  redisdata:

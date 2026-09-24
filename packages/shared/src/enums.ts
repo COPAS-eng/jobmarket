@@ -1,0 +1,106 @@
+export enum UserRole {
+  PROFISSIONAL = 'PROFISSIONAL',
+  EMPREGADOR = 'EMPREGADOR',
+  ADMIN = 'ADMIN',
+}
+
+export enum JobType {
+  FREELANCE = 'FREELANCE',
+  FULL_TIME = 'FULL_TIME',
+  PART_TIME = 'PART_TIME',
+  CONTRACT = 'CONTRACT',
+}
+
+export enum JobCategory {
+  DESENVOLVIMENTO = 'DESENVOLVIMENTO',
+  DESIGN = 'DESIGN',
+  MARKETING = 'MARKETING',
+  VENDAS = 'VENDAS',
+  ADMINISTRATIVO = 'ADMINISTRATIVO',
+  FINANCEIRO = 'FINANCEIRO',
+  RECURSOS_HUMANOS = 'RECURSOS_HUMANOS',
+  OPERACOES = 'OPERACOES',
+  PRODUTO = 'PRODUTO',
+  DADOS = 'DADOS',
+  OUTROS = 'OUTROS',
+}
+
+export enum SkillCategory {
+  PROGRAMACAO = 'PROGRAMACAO',
+  FRAMEWORKS = 'FRAMEWORKS',
+  FERRAMENTAS = 'FERRAMENTAS',
+  DESIGN = 'DESIGN',
+  MARKETING = 'MARKETING',
+  VENDAS = 'VENDAS',
+  GESTAO = 'GESTAO',
+  IDIOMAS = 'IDIOMAS',
+  OUTROS = 'OUTROS',
+}
+
+export enum JobStatus {
+  DRAFT = 'DRAFT',
+  OPEN = 'OPEN',
+  PAUSED = 'PAUSED',
+  FILLED = 'FILLED',
+  CLOSED = 'CLOSED',
+  EXPIRED = 'EXPIRED',
+}
+
+export enum ProposalStatus {
+  PENDING = 'PENDING',
+  ACCEPTED = 'ACCEPTED',
+  REJECTED = 'REJECTED',
+  WITHDRAWN = 'WITHDRAWN',
+}
+
+export enum ContractType {
+  FIXED = 'FIXED',
+  HOURLY = 'HOURLY',
+  MILESTONE = 'MILESTONE',
+}
+
+export enum ContractStatus {
+  ACTIVE = 'ACTIVE',
+  COMPLETED = 'COMPLETED',
+  CANCELLED = 'CANCELLED',
+  DISPUTED = 'DISPUTED',
+}
+
+export enum MilestoneStatus {
+  PENDING = 'PENDING',
+  IN_PROGRESS = 'IN_PROGRESS',
+  SUBMITTED = 'SUBMITTED',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+  PAID = 'PAID',
+}
+
+export enum PaymentStatus {
+  PENDING = 'PENDING',
+  PROCESSING = 'PROCESSING',
+  SUCCEEDED = 'SUCCEEDED',
+  FAILED = 'FAILED',
+  REFUNDED = 'REFUNDED',
+  DISPUTED = 'DISPUTED',
+}
+
+export enum SubscriptionPlan {
+  FREE = 'FREE',
+  PRO = 'PRO',
+  ENTERPRISE = 'ENTERPRISE',
+}
+
+export enum SubscriptionStatus {
+  ACTIVE = 'ACTIVE',
+  CANCELLED = 'CANCELLED',
+  PAST_DUE = 'PAST_DUE',
+  TRIALING = 'TRIALING',
+  INCOMPLETE = 'INCOMPLETE',
+}
+
+export enum Availability {
+  FULL_TIME = 'FULL_TIME',
+  PART_TIME = 'PART_TIME',
+  FREELANCE = 'FREELANCE',
+  UNAVAILABLE = 'UNAVAILABLE',
+}
