@@ -18,7 +18,7 @@
     "build:storybook": "storybook build"
   },
   "dependencies": {
-    "@jobmarket/shared": "^1.0.0",
+    "@jobmarket/shared": "file:../../packages/shared",
     "@hookform/resolvers": "^3.3.4",
     "@radix-ui/react-avatar": "^1.0.4",
     "@radix-ui/react-dialog": "^1.0.5",
