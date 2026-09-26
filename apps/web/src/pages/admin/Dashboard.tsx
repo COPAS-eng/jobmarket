@@ -19,6 +19,7 @@ import {
   Shield,
   Eye,
   MoreVertical,
+  ArrowRight,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -63,7 +64,7 @@ export function AdminDashboard() {
       )}>
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-between h-16 px-6 border-b border-slate-200 dark:border-slate-800">
-            <Link to="/admin" className="font-display font-bold text-xl text-cyan-500">
+            <Link to="/admin" className="font-display font-bold text-xl text-cyan-700">
               JobMarket Admin
             </Link>
             <button

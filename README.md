@@ -1,259 +1,407 @@
-# JobMarket — Marketplace Híbrido de Empregos & Freelance
+# JobMarket — Monorepo Tutorial
 
-> Plataforma completa conectando profissionais (freelancers, devs, designers, marketers) com empresas para vagas CLT/PJ e projetos freelance. Modelo de receita: assinaturas + comissão por transação via Stripe Connect.
+> Full-stack job board: React/Vite frontend + Express/TypeScript backend + Prisma/PostgreSQL
 
-## 🚀 Stack Tecnológica
+---
 
-| Camada | Tecnologia |
-|--------|------------|
-| **Frontend** | React 18 + Vite + TypeScript + Tailwind CSS v4 |
-| **Animações** | Framer Motion (scroll reveal) + GSAP (parallax hero) |
-| **Backend** | Node.js + Express + TypeScript |
-| **Database** | PostgreSQL 16 + Prisma ORM |
-| **Auth** | JWT (access + refresh tokens) + httpOnly cookies |
-| **Pagamentos** | Stripe Connect (marketplace) + Stripe Billing (assinaturas) |
-| **Deploy** | Docker + Docker Compose + GitHub Actions CI/CD |
-| **Monorepo** | npm workspaces + Turborepo |
+## Quick Start
 
-## 📁 Estrutura do Projeto
+```bash
+# Prerequisites
+# - Node.js ≥ 20 (npm ≥ 10.5.0)
+# - Docker & Docker Compose (for PostgreSQL)
+# - Git
+
+# 1. Clone & install
+git clone <repo-url>
+cd jobmarket
+npm install
+
+# 2. Start database
+docker compose -f docker/docker-compose.yml up -d postgres
+
+# 3. Configure environment
+cp apps/api/.env.example apps/api/.env  # then edit DATABASE_URL if needed
+
+# 4. Initialize database
+npm run db:generate   # generates Prisma Client
+npm run db:push       # pushes schema to database
+npm run db:seed       # (optional) seeds sample data
+
+# 5. Start development servers
+npm run dev           # runs both web (port 5173) + api (port 3000)
+```
+
+**URLs in dev:**
+- Frontend: http://localhost:5173
+- Backend API: http://localhost:3000
+- API Health: http://localhost:3000/health
+- Prisma Studio: `npm run db:studio` → http://localhost:5555
+
+---
+
+## Project Structure
 
 ```
 jobmarket/
 ├── apps/
-│   ├── web/                    # React + Vite + Tailwind
+│   ├── web/                 # React 18 + Vite + TypeScript
 │   │   ├── src/
-│   │   │   ├── components/     # UI components (Button, Card, Input, etc.)
-│   │   │   ├── pages/          # Page components (public, professional, employer, admin)
-│   │   │   ├── animations/     # Framer Motion + GSAP components
-│   │   │   ├── hooks/          # Custom hooks
-│   │   │   ├── contexts/       # React Context (Auth, Theme)
-│   │   │   ├── services/       # API client (axios)
-│   │   │   └── utils/          # Helpers (cn, formatCurrency, etc.)
-│   │   └── ...
+│   │   │   ├── components/  # Reusable UI components
+│   │   │   ├── pages/       # Route-level components
+│   │   │   ├── hooks/       # Custom React hooks
+│   │   │   ├── services/    # API clients (Axios/Fetch wrappers)
+│   │   │   ├── store/       # State management (Zustand/Context)
+│   │   │   ├── types/       # Shared TypeScript types
+│   │   │   └── utils/       # Helpers, constants
+│   │   ├── index.html
+│   │   ├── vite.config.ts
+│   │   └── package.json
 │   │
-│   └── api/                    # Express + TypeScript
+│   └── api/                 # Express + TypeScript
 │       ├── src/
-│       │   ├── config/         # Env validation (Zod)
-│       │   ├── controllers/    # Route handlers
-│       │   ├── middlewares/    # Auth, validation, rate limit, error handling
-│       │   ├── routes/         # Route definitions
-│       │   ├── services/       # Business logic
-│       │   ├── repositories/   # Prisma wrappers
-│       │   └── utils/          # JWT, password, cookies, errors
+│       │   ├── config/      # Env validation, constants
+│       │   ├── controllers/ # Route handlers
+│       │   ├── middleware/  # Auth, validation, error handling
+│       │   ├── routes/      # Route definitions
+│       │   ├── services/    # Business logic
+│       │   ├── utils/       # Helpers
+│       │   └── app.ts       # Express app factory
 │       ├── prisma/
-│       │   ├── schema.prisma   # Database schema
-│       │   └── seed.ts         # Development seed data
-│       └── ...
+│       │   ├── schema.prisma    # Database schema
+│       │   └── seed.ts          # Seed script
+│       ├── docker/
+│       │   └── Dockerfile
+│       └── package.json
 │
-├── packages/
-│   └── shared/                 # Types & validators shared (Zod + TS)
-│       ├── enums.ts
-│       ├── types.ts
-│       └── validators.ts
+├── packages/                # Shared packages (optional)
+│   ├── eslint-config/       # Shared ESLint config
+│   ├── tsconfig/            # Shared TypeScript configs
+│   └── ui/                  # Shared UI components (future)
 │
 ├── docker/
-│   ├── Dockerfile              # Multi-stage build
-│   ├── docker-compose.yml      # Development
-│   ├── docker-compose.prod.yml # Production
-│   └── nginx.conf              # Reverse proxy config
+│   └── docker-compose.yml   # PostgreSQL, Redis, etc.
 │
-├── .github/workflows/
-│   ├── ci.yml                  # Lint, typecheck, test, build
-│   └── deploy.yml              # Deploy to production
-│
-├── SPEC.md                     # Especificação completa do projeto
-├── .env.example                # Variáveis de ambiente
-├── package.json                # Root workspace
-├── tsconfig.json               # TypeScript base config
-├── .eslintrc.cjs               # ESLint config
-└── .prettierrc                 # Prettier config
+├── turbo.json               # Turborepo pipeline config
+├── package.json             # Root workspace config
+├── .env.example             # Root env template
+└── README.md                # This file
 ```
-
-## ⚡ Quick Start
-
-### Pré-requisitos
-- Node.js 20+
-- Docker & Docker Compose
-- PostgreSQL 16 (ou use o container)
-- Stripe account (para pagamentos)
-
-### Desenvolvimento
-
-```bash
-# 1. Clone e instale
-git clone <repo>
-cd jobmarket
-npm install
-
-# 2. Configure variáveis de ambiente
-cp .env.example apps/api/.env
-cp .env.example apps/web/.env
-# Edite os arquivos .env com suas chaves Stripe, etc.
-
-# 3. Suba os containers (PostgreSQL + Redis)
-docker-compose -f docker/docker-compose.yml up -d postgres redis
-
-# 4. Configure database
-npm run db:generate
-npm run db:push
-npm run db:seed
-
-# 5. Inicie desenvolvimento
-npm run dev
-# Frontend: http://localhost:5173
-# API: http://localhost:3001
-# Health: http://localhost:3001/health
-```
-
-### Usuários de teste (após seed)
-| Email | Senha | Role |
-|-------|-------|------|
-| admin@jobmarket.com | admin123 | ADMIN |
-| prof@jobmarket.com | prof123 | PROFISSIONAL |
-| emp@jobmarket.com | emp123 | EMPREGADOR |
-
-## 🎨 Design System & Animações
-
-### Cores
-- **Primary**: Slate 950 → Slate 800 (dark mode first)
-- **Accent**: Cyan 400 → Cyan 500
-- **Success**: Emerald 500
-- **Warning**: Amber 500
-- **Danger**: Red 500
-
-### Tipografia
-- **Display**: Space Grotesk (variable)
-- **Body**: DM Sans (variable)
-
-### Animações
-- **Hero Parallax**: GSAP ScrollTrigger (3 camadas: 0.3x, 0.6x, 1x)
-- **Scroll Reveal**: Framer Motion `whileInView` (fade up, stagger)
-- **Micro-interactions**: Hover states, button press, form focus
-- **Contadores animados**: IntersectionObserver + easeOutExpo
-
-## 🔐 Autenticação
-
-```
-POST /api/auth/register     # Registro (email, password, role, fullName)
-POST /api/auth/login        # Login (email, password) → cookies httpOnly
-POST /api/auth/refresh      # Refresh token (cookie) → novo access token
-POST /api/auth/logout       # Logout → clear cookies
-GET  /api/auth/me           # Usuário atual (protected)
-```
-
-- Access Token: 15min (JWT HS256)
-- Refresh Token: 7d (httpOnly cookie, rotation)
-- Roles: PROFISSIONAL, EMPREGADOR, ADMIN
-
-## 💰 Modelo de Negócio
-
-| Plano | Mensalidade | Comissão | Limites |
-|-------|-------------|----------|---------|
-| **Free** | R$ 0 | **12%** | 5 propostas/mês, 1 contrato ativo |
-| **Pro** | R$ 49 | **8%** | Ilimitado, destaque, analytics |
-| **Enterprise** | R$ 199 | **5%** | Equipe, API, SLA, gerente dedicado |
-
-**Sua receita**: % automático sobre cada pagamento via Stripe Connect (split payment).
-
-## 📦 Scripts Principais
-
-```bash
-# Desenvolvimento
-npm run dev              # Web + API simultâneo
-npm run dev:web          # Apenas frontend
-npm run dev:api          # Apenas backend
-
-# Database
-npm run db:generate      # Prisma generate
-npm run db:push          # Push schema (dev)
-npm run db:migrate       # Migrations (prod)
-npm run db:studio        # Prisma Studio
-npm run db:seed          # Seed data
-
-# Qualidade
-npm run lint             # ESLint
-npm run lint:fix         # ESLint --fix
-npm run typecheck        # tsc --noEmit
-npm run format           # Prettier
-npm run test             # Vitest (unit + integration)
-npm run test:e2e         # Playwright E2E
-
-# Build & Deploy
-npm run build            # Build all
-docker-compose -f docker/docker-compose.yml up -d  # Dev containers
-docker-compose -f docker/docker-compose.prod.yml up -d  # Prod
-```
-
-## 🧪 Testes
-
-```bash
-# Unit + Integration (Vitest)
-npm run test
-npm run test:coverage
-
-# E2E (Playwright)
-npm run test:e2e
-
-# Visual Regression (Storybook)
-npm run storybook
-```
-
-## 🚀 Deploy Produção
-
-### Opção 1: Docker Compose (VPS)
-```bash
-# No servidor
-docker-compose -f docker/docker-compose.prod.yml up -d
-```
-
-### Opção 2: Railway/Render/Fly.io
-- Conecte o repo
-- Configure variáveis de ambiente
-- Deploy automático via GitHub Actions
-
-### Variáveis de Produção Obrigatórias
-```env
-NODE_ENV=production
-DATABASE_URL=postgresql://...
-JWT_SECRET=openssl rand -base64 32
-JWT_REFRESH_SECRET=openssl rand -base64 32
-STRIPE_SECRET_KEY=sk_live_...
-STRIPE_WEBHOOK_SECRET=whsec_...
-FRONTEND_URL=https://seudominio.com
-REDIS_URL=redis://...
-```
-
-## 📚 Documentação
-
-- **SPEC.md** - Especificação completa (arquitetura, API, DB, animações, segurança)
-- **docs/api.md** - Referência da API (OpenAPI/Swagger)
-- **docs/database.md** - ERD + decisões de schema
-- **docs/deployment.md** - Guia de deploy detalhado
-
-## 🔒 Segurança
-
-- ✅ bcrypt (12 rounds) para senhas
-- ✅ JWT HS256 com rotação de segredo
-- ✅ Rate limiting (100 req/min API, 10 req/min auth)
-- ✅ Helmet (CSP, HSTS, X-Frame-Options)
-- ✅ CORS restrito ao FRONTEND_URL
-- ✅ Validação Zod em TODOS endpoints
-- ✅ Prisma ORM (prepared statements)
-- ✅ httpOnly + SameSite=Strict cookies
-- ✅ Stripe webhook signature verification
-
-## 🤝 Contribuindo
-
-1. Fork o projeto
-2. Crie branch (`git checkout -b feature/nova-funcionalidade`)
-3. Commit (`git commit -m 'feat: nova funcionalidade'`)
-4. Push (`git push origin feature/nova-funcionalidade`)
-5. Abra Pull Request
-
-## 📄 Licença
-
-MIT License - veja [LICENSE](LICENSE) para detalhes.
 
 ---
 
-**Desenvolvido com ❤️ usando React, Node.js, PostgreSQL e Stripe**
+## Available Commands
+
+### Root (run from monorepo root)
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start all apps in dev mode (web + api) |
+| `npm run build` | Build all apps for production |
+| `npm run lint` | Lint all packages |
+| `npm run typecheck` | Type-check all packages |
+| `npm run test` | Run all tests |
+| `npm run format` | Format with Prettier |
+| `npm run db:generate` | Generate Prisma Client |
+| `npm run db:push` | Push schema changes to DB (dev) |
+| `npm run db:migrate` | Create & run migrations (prod) |
+| `npm run db:studio` | Open Prisma Studio |
+| `npm run db:seed` | Seed database with sample data |
+| `npm run docker:up` | Start Docker services |
+| `npm run docker:down` | Stop Docker services |
+
+### Frontend (`apps/web`)
+
+```bash
+cd apps/web
+npm run dev          # Vite dev server (port 5173)
+npm run build        # Production build → dist/
+npm run preview      # Preview production build
+npm run lint         # ESLint
+npm run typecheck    # tsc --noEmit
+```
+
+### Backend (`apps/api`)
+
+```bash
+cd apps/api
+npm run dev          # tsx watch (port 3000)
+npm run build        # tsc → dist/
+npm run start        # Run production build
+npm run lint         # ESLint
+npm run typecheck    # tsc --noEmit
+npm run test         # Vitest
+npm run db:generate  # prisma generate
+npm run db:push      # prisma db push
+npm run db:migrate   # prisma migrate dev
+npm run db:studio    # prisma studio
+npm run db:seed      # tsx prisma/seed.ts
+```
+
+---
+
+## Environment Configuration
+
+### Backend (`apps/api/.env`)
+
+```env
+# Database
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/jobmarket?schema=public"
+
+# Server
+PORT=3000
+NODE_ENV=development
+CORS_ORIGIN="http://localhost:5173"
+
+# Auth (add when implementing)
+JWT_SECRET="your-super-secret-key-min-32-chars"
+JWT_EXPIRES_IN="7d"
+
+# External APIs (add as needed)
+# LINKEDIN_CLIENT_ID=""
+# LINKEDIN_CLIENT_SECRET=""
+# GITHUB_CLIENT_ID=""
+# GITHUB_CLIENT_SECRET=""
+```
+
+### Frontend (`apps/web/.env`)
+
+```env
+VITE_API_URL=http://localhost:3000
+VITE_APP_NAME=JobMarket
+```
+
+### Docker Compose (`docker/docker-compose.yml`)
+
+```yaml
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: jobmarket
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  postgres_data:
+  redis_data:
+```
+
+---
+
+## Development Workflow
+
+### 1. Feature Development
+
+```bash
+# 1. Create feature branch
+git checkout -b feat/job-search-filters
+
+# 2. Make changes
+# - Frontend: apps/web/src/
+# - Backend: apps/api/src/
+# - Database: apps/api/prisma/schema.prisma
+
+# 3. Run quality checks
+npm run lint
+npm run typecheck
+npm run test
+
+# 4. If schema changed
+npm run db:generate
+npm run db:migrate  # creates migration file
+
+# 5. Commit with conventional commits
+git add .
+git commit -m "feat(job-search): add salary range filter"
+
+# 6. Push & create PR
+git push origin feat/job-search-filters
+```
+
+### 2. Database Changes
+
+```bash
+# Option A: Development (push directly)
+# Edit schema.prisma →
+npm run db:generate
+npm run db:push
+
+# Option B: Production-ready (migrations)
+# Edit schema.prisma →
+npm run db:generate
+npm run db:migrate  # prompts for migration name
+# Review generated migration in prisma/migrations/
+npm run db:seed     # if seed data needs update
+```
+
+### 3. Adding a New Shared Package
+
+```bash
+# 1. Create package
+mkdir -p packages/my-package/src
+# Add package.json, tsconfig.json, source files
+
+# 2. Add to root package.json workspaces
+# "workspaces": ["apps/*", "packages/*"]
+
+# 3. Install
+npm install
+
+# 4. Import in apps
+# In apps/web/package.json or apps/api/package.json:
+# "dependencies": { "my-package": "workspace:*" }
+```
+
+### 4. Code Style & Conventions
+
+| Area | Convention |
+|------|------------|
+| **Commits** | Conventional Commits: `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:` |
+| **Branches** | `feat/`, `fix/`, `chore/`, `docs/`, `refactor/` |
+| **TypeScript** | Strict mode, explicit return types for public APIs |
+| **React** | Functional components, hooks, TypeScript interfaces for props |
+| **Express** | Controllers → Services → Prisma, async/await, proper error handling |
+| **Database** | snake_case tables/columns, UUID primary keys, indexes on FKs |
+| **API** | RESTful, plural nouns, proper HTTP status codes |
+| **Env** | Never commit `.env` files, use `.env.example` |
+
+---
+
+## Testing
+
+```bash
+# Run all tests
+npm run test
+
+# Frontend only
+cd apps/web && npm run test
+
+# Backend only
+cd apps/api && npm run test
+
+# Watch mode
+npm run test -- --watch
+
+# Coverage
+npm run test -- --coverage
+```
+
+**Test Structure:**
+- Unit: `*.test.ts` / `*.test.tsx` alongside source
+- Integration: `__tests__/` directories
+- E2E: (add Playwright/Cypress later)
+
+---
+
+## Deployment
+
+### Docker Production Build
+
+```bash
+# Build images
+docker compose -f docker/docker-compose.prod.yml build
+
+# Run
+docker compose -f docker/docker-compose.prod.yml up -d
+```
+
+### Environment Variables (Production)
+
+```env
+# Required
+DATABASE_URL="postgresql://user:pass@host:5432/db?schema=public"
+JWT_SECRET="production-secret-64-chars-minimum"
+NODE_ENV=production
+CORS_ORIGIN="https://yourdomain.com"
+
+# Optional
+REDIS_URL="redis://host:6379"
+LOG_LEVEL="info"
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX=100
+```
+
+### Database Migrations (Production)
+
+```bash
+# On deploy
+npm run db:migrate deploy  # runs pending migrations
+```
+
+---
+
+## Troubleshooting
+
+### Port Already in Use
+```bash
+# Find & kill process
+lsof -ti:5173 | xargs kill -9
+lsof -ti:3000 | xargs kill -9
+```
+
+### Database Connection Failed
+```bash
+# Check Docker
+docker compose -f docker/docker-compose.yml ps
+docker compose -f docker/docker-compose.yml logs postgres
+
+# Reset database
+docker compose -f docker/docker-compose.yml down -v
+docker compose -f docker/docker-compose.yml up -d postgres
+npm run db:push
+```
+
+### Prisma Client Out of Sync
+```bash
+npm run db:generate
+# If still failing:
+rm -rf node_modules/.prisma
+npm run db:generate
+```
+
+### Type Errors After Schema Change
+```bash
+npm run db:generate
+# Restart TypeScript server in IDE (Cmd+Shift+P → "TypeScript: Restart TS Server")
+```
+
+### Turbo Cache Issues
+```bash
+npm run clean  # if defined, or:
+rm -rf node_modules/.turbo
+rm -rf apps/*/node_modules/.turbo
+```
+
+---
+
+## Useful Links
+
+- [Turborepo Docs](https://turbo.build/repo/docs)
+- [Prisma Docs](https://www.prisma.io/docs)
+- [Vite Docs](https://vitejs.dev/guide/)
+- [Express Docs](https://expressjs.com/)
+- [React Docs](https://react.dev/)
+- [TypeScript Docs](https://www.typescriptlang.org/docs/)
+
+---
+
+## License
+
+MIT — see LICENSE file for details.

@@ -21,18 +21,18 @@ import {
   Bookmark,
   Loader2,
 } from 'lucide-react';
-import { Job } from '@/shared/types';
+import { Job, JobType, JobCategory } from '@jobmarket/shared';
 import { jobsApi } from '@/services/api';
 import { useToast } from '@/components/ui/Toast';
 
-const jobTypeLabels: Record<string, string> = {
+const jobTypeLabels: Record<JobType, string> = {
   FREELANCE: 'Freelance',
   FULL_TIME: 'CLT',
   PART_TIME: 'Meio período',
   CONTRACT: 'PJ',
 };
 
-const jobCategoryLabels: Record<string, string> = {
+const jobCategoryLabels: Record<JobCategory, string> = {
   DESENVOLVIMENTO: 'Desenvolvimento',
   DESIGN: 'Design',
   MARKETING: 'Marketing',
@@ -154,7 +154,7 @@ export function JobDetailPage() {
               </h1>
               
               <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500 dark:text-slate-400 mb-6">
-                {job.employer.profile && (
+                {job.employer?.profile && (
                   <>
                     <Avatar src={job.employer.profile.avatar} name={job.employer.profile.fullName} size="sm" />
                     <span className="font-medium text-slate-950 dark:text-white">
@@ -194,11 +194,11 @@ export function JobDetailPage() {
             <ScrollReveal delay={0.3}>
               <div>
                 <h3 className="font-display font-bold text-lg text-slate-950 dark:text-white mb-3 flex items-center gap-2">
-                  <Tag className="h-5 w-5 text-cyan-500" />
+                  <Tag className="h-5 w-5 text-cyan-700" />
                   Skills requeridas
                 </h3>
                 <div className="flex flex-wrap gap-2">
-                  {job.skills.map(skill => (
+                  {job.skills?.map(skill => (
                     <Badge key={skill.id} variant="outline">{skill.name}</Badge>
                   ))}
                 </div>
@@ -262,7 +262,7 @@ export function JobDetailPage() {
             </ScrollReveal>
 
             {/* Company Info */}
-            {job.employer.profile && (
+            {job.employer?.profile && (
               <ScrollReveal direction="right" delay={0.1}>
                 <Card>
                   <h3 className="font-display font-bold text-lg text-slate-950 dark:text-white mb-4">
@@ -280,7 +280,7 @@ export function JobDetailPage() {
                       <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-3">{job.employer.profile.bio}</p>
                     )}
                     {job.employer.profile.website && (
-                      <a href={job.employer.profile.website} target="_blank" rel="noopener noreferrer" className="text-sm text-cyan-500 hover:text-cyan-400 flex items-center gap-1">
+                      <a href={job.employer.profile.website} target="_blank" rel="noopener noreferrer" className="text-sm text-cyan-700 hover:text-cyan-600 flex items-center gap-1">
                         <Globe className="h-4 w-4" /> Site da empresa
                       </a>
                     )}

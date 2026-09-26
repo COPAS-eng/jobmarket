@@ -6,7 +6,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "@jobmarket/shared": ["../../packages/shared/src"]
+      "@jobmarket/shared": ["../../packages/shared/src"],
+      "@jobmarket/shared/*": ["../../packages/shared/src/*"]
     }
   },
   "include": ["src/**/*", "prisma/seed.ts"],

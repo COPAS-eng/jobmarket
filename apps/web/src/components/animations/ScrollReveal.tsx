@@ -1,5 +1,5 @@
 import { motion, HTMLMotionProps } from 'framer-motion';
-import { ReactNode } from 'react';
+import { Children, ReactNode, cloneElement, isValidElement } from 'react';
 import { cn } from '@/utils/cn';
 
 interface ScrollRevealProps extends Omit<HTMLMotionProps<'div'>, 'initial' | 'animate' | 'viewport' | 'transition'> {
@@ -63,9 +63,9 @@ export function StaggerContainer({
         },
       }}
     >
-      {React.Children.map(children, child => {
-        if (!React.isValidElement(child)) return child;
-        return React.cloneElement(child, {
+      {Children.map(children, child => {
+        if (!isValidElement(child)) return child;
+        return cloneElement(child, {
           variants: {
             hidden: { opacity: 0, y: direction === 'up' ? 20 : direction === 'down' ? -20 : 0, x: direction === 'left' ? 20 : direction === 'right' ? -20 : 0 },
             show: { opacity: 1, y: 0, x: 0, transition: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] } },

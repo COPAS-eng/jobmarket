@@ -13,15 +13,11 @@ import {
   FileText,
   DollarSign,
   Users,
-  Settings,
   LogOut,
   Plus,
   ArrowRight,
   TrendingUp,
   Clock,
-  Users as UsersIcon,
-  Building2,
-  Search,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -41,7 +37,7 @@ export function EmployerDashboard() {
   const stats = [
     { label: 'Vagas ativas', value: '5', change: '+2', icon: Briefcase },
     { label: 'Candidaturas', value: '23', change: '+8', icon: FileText },
-    { label: 'Contratos ativos', value: '3', change: '+1', icon: UsersIcon },
+    { label: 'Contratos ativos', value: '3', change: '+1', icon: Users },
     { label: 'Investido este mês', value: 'R$ 15.000', change: '+25%', icon: DollarSign },
   ];
 
@@ -252,7 +248,7 @@ export function EmployerDashboard() {
                     <Link key={candidate.id} to={`/candidatos/${candidate.id}`} className="card-hover p-4 flex items-center justify-between">
                       <div>
                         <div className="flex items-center gap-2 mb-1">
-                          <Avatar src={null} name={candidate.name} size="sm" />
+                          <Avatar name={candidate.name} size="sm" />
                           <h3 className="font-medium text-slate-950 dark:text-white">{candidate.name}</h3>
                         </div>
                         <p className="text-sm text-slate-500 dark:text-slate-400">

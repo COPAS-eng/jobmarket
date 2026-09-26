@@ -1,6 +1,6 @@
 import toast, { Toaster, ToastOptions } from 'react-hot-toast';
 
-type ToastType = 'success' | 'error' | 'loading' | 'promise' | 'custom';
+type ToastType = 'success' | 'error' | 'loading';
 
 interface ToastConfig {
   success?: Partial<ToastOptions>;
@@ -24,7 +24,7 @@ const defaultConfig: ToastConfig = {
 
 export function useToast() {
   const showToast = (message: string, type: ToastType = 'success', options?: ToastOptions) => {
-    const config = defaultConfig[type as keyof ToastConfig] || {};
+    const config = defaultConfig[type] || {};
     return toast[type](message, { ...config, ...options });
   };
 

@@ -1,15 +1,20 @@
-import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
+import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 import { getEnv } from './env';
+import type { RegisterInput, LoginInput, CreateJobInput, UpdateJobInput, CreateProposalInput, CreateContractInput, CreateMilestoneInput, UpdateProfileInput, JobQueryParams, ProfessionalQueryParams, UpdateContractInput, UpdateMilestoneInput, SubmitMilestoneInput, CreatePaymentIntentInput } from '@jobmarket/shared';
 
 const env = getEnv();
 
-const api = axios.create({
+interface ExtendedAxiosInstance extends AxiosInstance {
+  auth: typeof authApi;
+}
+
+export const api = axios.create({
   baseURL: env.VITE_API_URL,
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
-});
+}) as ExtendedAxiosInstance;
 
 let isRefreshing = false;
 let failedQueue: Array<{
@@ -89,9 +94,6 @@ api.interceptors.response.use(
   }
 );
 
-export default api;
-
-// API endpoint helpers
 export const authApi = {
   register: (data: RegisterInput) => api.post('/auth/register', data),
   login: (data: LoginInput) => api.post('/auth/login', data),
@@ -143,20 +145,4 @@ export const stripeApi = {
   createPortalSession: () => api.post('/stripe/subscription/portal'),
 };
 
-// Types (re-export from shared)
-import type {
-  RegisterInput,
-  LoginInput,
-  JobQueryParams,
-  CreateJobInput,
-  UpdateJobInput,
-  CreateProposalInput,
-  CreateContractInput,
-  UpdateContractInput,
-  CreateMilestoneInput,
-  UpdateMilestoneInput,
-  SubmitMilestoneInput,
-  UpdateProfileInput,
-  ProfessionalQueryParams,
-  CreatePaymentIntentInput,
-} from '@/shared/types';
+Object.assign(api, { auth: authApi });

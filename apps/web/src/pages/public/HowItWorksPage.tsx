@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { ScrollReveal, StaggerContainer } from '@/components/animations/ScrollReveal';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
 import { cn } from '@/utils/cn';
 import {
   User,
@@ -199,13 +200,13 @@ export function HowItWorksPage() {
               className="flex flex-col sm:flex-row items-center justify-center gap-4"
             >
               <Button size="lg" asChild>
-                <Link href="/cadastro?role=professional">
+                <Link to="/cadastro?role=professional">
                   <Sparkles className="h-5 w-5 mr-2" />
                   Começar como Profissional
                 </Link>
               </Button>
               <Button size="lg" variant="ghost" className="border-white/30 hover:bg-white/10 text-white" asChild>
-                <Link href="/cadastro?role=employer">
+                <Link to="/cadastro?role=employer">
                   Contratar Talentos
                 </Link>
               </Button>
@@ -233,7 +234,7 @@ export function HowItWorksPage() {
               <ScrollReveal key={step.number} delay={i * 0.1}>
                 <Card className="relative h-full group">
                   <div className="absolute -top-4 left-6">
-                    <span className="font-display font-bold text-5xl text-cyan-500/10">{step.number}</span>
+                    <span className="font-display font-bold text-5xl text-cyan-700/10">{step.number}</span>
                   </div>
                   <div className="pt-10">
                     <div className="h-14 w-14 rounded-xl bg-cyan-500/10 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
@@ -280,7 +281,7 @@ export function HowItWorksPage() {
               <ScrollReveal key={step.number} delay={i * 0.1}>
                 <Card className="relative h-full group">
                   <div className="absolute -top-4 left-6">
-                    <span className="font-display font-bold text-5xl text-cyan-500/10">{step.number}</span>
+                    <span className="font-display font-bold text-5xl text-cyan-700/10">{step.number}</span>
                   </div>
                   <div className="pt-10">
                     <div className="h-14 w-14 rounded-xl bg-cyan-500/10 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
@@ -396,7 +397,7 @@ export function HowItWorksPage() {
                       <span className="font-display font-bold text-4xl text-white">R$ {plan.price}</span>
                       <span className="text-slate-400">/mês</span>
                     </div>
-                    <p className="text-cyan-500 font-medium">Comissão: {plan.commission} por deal</p>
+                    <p className="text-cyan-700 font-medium">Comissão: {plan.commission} por deal</p>
                   </div>
                   <ul className="space-y-3 mb-8 flex-1">
                     {plan.features.map((feature, i) => (
@@ -411,7 +412,7 @@ export function HowItWorksPage() {
                     variant={plan.popular ? 'primary' : 'outline'}
                     asChild
                   >
-                    <Link href={`/cadastro?role=professional&plan=${plan.name.toLowerCase()}`}>
+                    <Link to={`/cadastro?role=professional&plan=${plan.name.toLowerCase()}`}>
                       {plan.cta}
                       <ChevronRight className="h-4 w-4 ml-2" />
                     </Link>
@@ -489,13 +490,13 @@ export function HowItWorksPage() {
                 </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                   <Button size="lg" className="w-full sm:w-auto" asChild>
-                    <Link href="/cadastro?role=professional">
+                    <Link to="/cadastro?role=professional">
                       <Sparkles className="h-5 w-5 mr-2" />
                       Criar conta gratuita
                     </Link>
                   </Button>
                   <Button size="lg" variant="ghost" className="w-full sm:w-auto border-slate-700 hover:bg-slate-800 text-white" asChild>
-                    <Link href="/vagas">
+                    <Link to="/vagas">
                       Ver oportunidades
                     </Link>
                   </Button>

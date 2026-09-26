@@ -4,6 +4,10 @@ import helmet from 'helmet';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
+import swaggerUi from 'swagger-ui-express';
+import * as yaml from 'js-yaml';
+import * as fs from 'fs';
+import * as path from 'path';
 import { env } from '@/config/env';
 import {
   globalRateLimiter,
@@ -31,7 +35,7 @@ export function createApp() {
       directives: {
         defaultSrc: ["'self'"],
         styleSrc: ["'self'", "'unsafe-inline'"],
-        scriptSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
         imgSrc: ["'self'", 'data:', 'https:'],
         connectSrc: ["'self'", env.FRONTEND_URL],
         fontSrc: ["'self'", 'data:'],
@@ -85,6 +89,11 @@ export function createApp() {
   apiRouter.use('/stripe', stripeRouter);
 
   app.use('/api', apiRouter);
+
+  // API docs (Swagger UI)
+  const openapiPath = path.join(__dirname, 'docs', 'openapi.yaml');
+  const openapiSpec = yaml.load(fs.readFileSync(openapiPath, 'utf8')) as object;
+  app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(openapiSpec));
 
   // Stripe webhook (needs raw body)
   app.post('/webhooks/stripe', express.raw({ type: 'application/json' }), stripeRouter);

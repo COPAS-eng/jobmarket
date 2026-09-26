@@ -80,7 +80,7 @@ export function AdminUsers() {
                 {users.map(u => (
                   <tr key={u.id} className="border-b border-slate-100 dark:border-slate-800/50">
                     <td className="py-4 px-4">
-                      <Link to={`/admin/usuarios/${u.id}`} className="flex items-center gap-3 hover:text-cyan-500">
+                      <Link to={`/admin/usuarios/${u.id}`} className="flex items-center gap-3 hover:text-cyan-700">
                         <Avatar name={u.name} size="sm" />
                         <div>
                           <p className="font-medium text-slate-950 dark:text-white">{u.name}</p>

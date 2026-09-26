@@ -1,4 +1,4 @@
-import { forwardRef, ButtonHTMLAttributes, AnchorHTMLAttributes } from 'react';
+import { forwardRef, ButtonHTMLAttributes } from 'react';
 import { cn } from '@/utils/cn';
 import { Spinner } from './Spinner';
 
@@ -7,12 +7,6 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   size?: 'sm' | 'md' | 'lg' | 'xl';
   loading?: boolean;
   asChild?: boolean;
-}
-
-interface LinkButtonProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
-  variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'outline';
-  size?: 'sm' | 'md' | 'lg' | 'xl';
-  loading?: boolean;
 }
 
 const baseStyles = 'inline-flex items-center justify-center font-medium transition-all duration-200 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 disabled:opacity-50 disabled:cursor-not-allowed';
@@ -32,7 +26,7 @@ const sizeStyles = {
   xl: 'px-9 py-4.5 text-xl gap-3',
 };
 
-const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = 'primary', size = 'md', loading, asChild, children, disabled, ...props }, ref) => {
     const Comp = asChild ? 'a' : 'button';
     
@@ -41,7 +35,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref as any}
         className={cn(baseStyles, variantStyles[variant], sizeStyles[size], className)}
         disabled={disabled || loading}
-        {...props}
+        {...props as any}
       >
         {loading && <Spinner className="h-4 w-4" />}
         {children}
@@ -51,19 +45,3 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 );
 
 Button.displayName = 'Button';
-
-export { Button };
-
-// Link wrapper for router links
-export function LinkButton({ className, variant = 'primary', size = 'md', loading, children, ...props }: LinkButtonProps) {
-  return (
-    <a
-      className={cn(baseStyles, variantStyles[variant], sizeStyles[size], className)}
-      aria-disabled={loading}
-      {...props}
-    >
-      {loading && <Spinner className="h-4 w-4" />}
-      {children}
-    </a>
-  );
-}

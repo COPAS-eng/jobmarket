@@ -70,6 +70,9 @@ export function LandingPage() {
   const particlesRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) return;
+
     const ctx = gsap.context(() => {
       // Parallax background
       gsap.to('.parallax-bg', {
@@ -334,7 +337,7 @@ export function LandingPage() {
               <ScrollReveal key={stat.label} delay={i * 0.1}>
                 <div className="text-center">
                   <div className="h-12 w-12 rounded-xl bg-cyan-500/10 flex items-center justify-center mx-auto mb-4">
-                    <stat.icon className="h-6 w-6 text-cyan-500" />
+                    <stat.icon className="h-6 w-6 text-cyan-700" />
                   </div>
                   <div className="font-display font-bold text-3xl sm:text-4xl text-white mb-1">{stat.value}</div>
                   <div className="text-slate-400">{stat.label}</div>
@@ -397,7 +400,7 @@ export function LandingPage() {
             {categories.map((cat, i) => (
               <ScrollReveal key={cat.label} delay={i * 0.05}>
                 <Link
-                  href={`/vagas?category=${cat.label.toUpperCase().replace(' & ', '_').replace(' ', '_')}`}
+                  to={`/vagas?category=${cat.label.toUpperCase().replace(' & ', '_').replace(' ', '_')}`}
                   className="card-hover p-5 flex items-center gap-4 group"
                 >
                   <div className="h-12 w-12 rounded-xl bg-cyan-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -407,7 +410,7 @@ export function LandingPage() {
                     <h3 className="font-medium text-slate-950 dark:text-white">{cat.label}</h3>
                     <p className="text-sm text-slate-500 dark:text-slate-400">{cat.count} vagas abertas</p>
                   </div>
-                  <span className="ml-auto text-cyan-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className="ml-auto text-cyan-700 opacity-0 group-hover:opacity-100 transition-opacity">
                     →
                   </span>
                 </Link>
@@ -452,7 +455,7 @@ export function LandingPage() {
               <ScrollReveal key={step.step} delay={i * 0.1}>
                 <div className="relative card p-8 text-center">
                   <div className="absolute -top-6 left-1/2 -translate-x-1/2">
-                    <span className="font-display font-bold text-4xl text-cyan-500/20">{step.step}</span>
+                    <span className="font-display font-bold text-4xl text-cyan-700/20">{step.step}</span>
                   </div>
                   <div className="h-14 w-14 rounded-xl bg-cyan-500/10 flex items-center justify-center mx-auto mb-6">
                     <step.icon className="h-7 w-7 text-cyan-600 dark:text-cyan-400" />
@@ -518,28 +521,28 @@ export function LandingPage() {
             <div>
               <h4 className="font-medium text-white mb-4">Para Profissionais</h4>
               <ul className="space-y-2 text-sm text-slate-400">
-                <li><Link to="/cadastro?role=professional" className="hover:text-cyan-400 transition-colors">Criar perfil</Link></li>
-                <li><Link to="/vagas" className="hover:text-cyan-400 transition-colors">Buscar vagas</Link></li>
-                <li><Link to="/profissionais" className="hover:text-cyan-400 transition-colors">Ver comunidade</Link></li>
-                <li><Link to="/como-funciona" className="hover:text-cyan-400 transition-colors">Como funciona</Link></li>
+                <li><Link to="/cadastro?role=professional" className="hover:text-cyan-600 transition-colors">Criar perfil</Link></li>
+                <li><Link to="/vagas" className="hover:text-cyan-600 transition-colors">Buscar vagas</Link></li>
+                <li><Link to="/profissionais" className="hover:text-cyan-600 transition-colors">Ver comunidade</Link></li>
+                <li><Link to="/como-funciona" className="hover:text-cyan-600 transition-colors">Como funciona</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="font-medium text-white mb-4">Para Empresas</h4>
               <ul className="space-y-2 text-sm text-slate-400">
-                <li><Link to="/cadastro?role=employer" className="hover:text-cyan-400 transition-colors">Postar vaga</Link></li>
-                <li><Link to="/profissionais" className="hover:text-cyan-400 transition-colors">Buscar talentos</Link></li>
-                <li><Link to="/como-funciona" className="hover:text-cyan-400 transition-colors">Como contratar</Link></li>
-                <li><Link to="/precos" className="hover:text-cyan-400 transition-colors">Planos e preços</Link></li>
+                <li><Link to="/cadastro?role=employer" className="hover:text-cyan-600 transition-colors">Postar vaga</Link></li>
+                <li><Link to="/profissionais" className="hover:text-cyan-600 transition-colors">Buscar talentos</Link></li>
+                <li><Link to="/como-funciona" className="hover:text-cyan-600 transition-colors">Como contratar</Link></li>
+                <li><Link to="/precos" className="hover:text-cyan-600 transition-colors">Planos e preços</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="font-medium text-white mb-4">Empresa</h4>
               <ul className="space-y-2 text-sm text-slate-400">
-                <li><Link to="/sobre" className="hover:text-cyan-400 transition-colors">Sobre nós</Link></li>
-                <li><Link to="/blog" className="hover:text-cyan-400 transition-colors">Blog</Link></li>
-                <li><Link to="/carreiras" className="hover:text-cyan-400 transition-colors">Carreiras</Link></li>
-                <li><Link to="/contato" className="hover:text-cyan-400 transition-colors">Contato</Link></li>
+                <li><Link to="/sobre" className="hover:text-cyan-600 transition-colors">Sobre nós</Link></li>
+                <li><Link to="/blog" className="hover:text-cyan-600 transition-colors">Blog</Link></li>
+                <li><Link to="/carreiras" className="hover:text-cyan-600 transition-colors">Carreiras</Link></li>
+                <li><Link to="/contato" className="hover:text-cyan-600 transition-colors">Contato</Link></li>
               </ul>
             </div>
           </div>
@@ -548,9 +551,9 @@ export function LandingPage() {
               © 2025 JobMarket. Todos os direitos reservados.
             </p>
             <div className="flex items-center gap-6">
-              <Link to="/privacidade" className="text-sm text-slate-500 hover:text-cyan-400">Privacidade</Link>
-              <Link to="/termos" className="text-sm text-slate-500 hover:text-cyan-400">Termos</Link>
-              <Link to="/cookies" className="text-sm text-slate-500 hover:text-cyan-400">Cookies</Link>
+              <Link to="/privacidade" className="text-sm text-slate-500 hover:text-cyan-600">Privacidade</Link>
+              <Link to="/termos" className="text-sm text-slate-500 hover:text-cyan-600">Termos</Link>
+              <Link to="/cookies" className="text-sm text-slate-500 hover:text-cyan-600">Cookies</Link>
             </div>
           </div>
         </div>

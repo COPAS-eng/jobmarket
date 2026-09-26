@@ -73,7 +73,7 @@ export function ProfessionalsPage() {
       params.set('sort', filters.sort);
       params.set('order', filters.order);
 
-      const response = await usersApi.listProfessionals({ params });
+      const response = await usersApi.listProfessionals(params as any);
       setProfessionals(response.data.data);
       setTotal(response.data.meta?.total || 0);
       setTotalPages(response.data.meta?.totalPages || 1);
@@ -187,7 +187,7 @@ export function ProfessionalsPage() {
                             type="checkbox"
                             checked={filters.availability.includes(value as any)}
                             onChange={() => toggleArrayFilter('availability', value)}
-                            className="h-4 w-4 rounded border-slate-300 text-cyan-500 focus:ring-cyan-500"
+                            className="h-4 w-4 rounded border-slate-300 text-cyan-700 focus:ring-cyan-700"
                           />
                           <span className="text-sm text-slate-700 dark:text-slate-300">{label}</span>
                         </label>
@@ -340,8 +340,8 @@ export function ProfessionalsPage() {
   );
 }
 
-function ProfessionalCard({ professional }: { professional: Profile & { user: { id: string; subscription: { plan: string } } } }) {
-  const topSkills = professional.skills.slice(0, 3);
+function ProfessionalCard({ professional }: { professional: Profile & { user?: { id: string; subscription?: { plan: string } } } }) {
+  const topSkills = professional.skills?.slice(0, 3) || [];
   
   return (
     <Link to={`/profissionais/${professional.userId}`} className="card-hover h-full">
@@ -357,7 +357,7 @@ function ProfessionalCard({ professional }: { professional: Profile & { user: { 
                 {professional.headline || 'Profissional'}
               </p>
             </div>
-            {professional.user.subscription?.plan !== 'FREE' && (
+            {professional.user?.subscription?.plan && professional.user.subscription.plan !== 'FREE' && (
               <Badge variant={professional.user.subscription.plan === 'PRO' ? 'primary' : 'success'} size="sm">
                 {professional.user.subscription.plan}
               </Badge>
@@ -376,7 +376,7 @@ function ProfessionalCard({ professional }: { professional: Profile & { user: { 
                 {skill.name}
               </Badge>
             ))}
-            {professional.skills.length > 3 && (
+            {professional.skills && professional.skills.length > 3 && (
               <Badge variant="neutral" size="sm">+{professional.skills.length - 3}</Badge>
             )}
           </div>

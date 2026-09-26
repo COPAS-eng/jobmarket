@@ -1,21 +1,14 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { User, UserRole } from '@/shared/types';
-import api from '@/services/api';
+import { User, UserRole, RegisterInput } from '@jobmarket/shared';
+import { api } from '@/services/api';
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (data: RegisterData) => Promise<void>;
+  register: (data: RegisterInput) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
-}
-
-interface RegisterData {
-  email: string;
-  password: string;
-  role: UserRole;
-  fullName: string;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -27,7 +20,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const fetchUser = useCallback(async () => {
     try {
       const response = await api.auth.me();
-      setUser(response.data.data.user);
+      setUser(response.data.data.user as User);
     } catch {
       setUser(null);
     } finally {
@@ -44,7 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await fetchUser();
   };
 
-  const register = async (data: RegisterData) => {
+  const register = async (data: RegisterInput) => {
     await api.auth.register(data);
     await fetchUser();
   };

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Link } from 'react-router-dom';
 import { Plus, ChevronRight } from 'lucide-react';
+import { cn } from '@/utils/cn';
 
 const plans = [
   { name: 'Free', price: 0, commission: '12%', features: ['5 propostas/mês', '1 contrato ativo', 'Perfil básico', 'Suporte comunitário'], popular: false },
@@ -84,7 +85,7 @@ export function ProfessionalSubscription() {
                     <span className="font-display font-bold text-4xl text-slate-950 dark:text-white">R$ {plan.price}</span>
                     <span className="text-slate-400">/mês</span>
                   </div>
-                  <p className="text-cyan-500 font-medium">Comissão: {plan.commission}</p>
+                  <p className="text-cyan-700 font-medium">Comissão: {plan.commission}</p>
                 </div>
                 <ul className="space-y-3 mb-8 flex-1">
                   {plan.features.map((f, i) => (
@@ -99,7 +100,7 @@ export function ProfessionalSubscription() {
                   variant={plan.popular ? 'primary' : 'outline'}
                   asChild
                 >
-                  <Link href={`/cadastro?plan=${plan.name.toLowerCase()}`}>
+                  <Link to={`/cadastro?plan=${plan.name.toLowerCase()}`}>
                     {plan.name === 'Free' ? 'Começar grátis' : 'Assinar agora'}
                     <ChevronRight className="h-4 w-4 ml-2" />
                   </Link>

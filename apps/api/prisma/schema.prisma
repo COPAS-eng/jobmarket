@@ -131,8 +131,8 @@ model User {
   proposals       Proposal[]
   professionalContracts Contract[] @relation("ProfessionalContracts")
   employerContracts     Contract[] @relation("EmployerContracts")
-  payments        Payment[]
-  skills          ProfileSkill[]
+  jobs              Job[]
+  // payments via Contract, skills via Profile
   
   @@index([email])
   @@index([role])

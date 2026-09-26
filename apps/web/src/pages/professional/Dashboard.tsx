@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
 import { ScrollReveal } from '@/components/animations/ScrollReveal';
@@ -14,16 +14,18 @@ import {
   Briefcase,
   DollarSign,
   CreditCard,
-  Settings,
   LogOut,
   Plus,
   ArrowRight,
   TrendingUp,
   Clock,
-  CheckCircle,
   Activity,
+  Loader2,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { jobsApi, contractsApi } from '@/services/api';
+import type { Proposal, Contract } from '@jobmarket/shared';
+import { toast } from 'sonner';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },

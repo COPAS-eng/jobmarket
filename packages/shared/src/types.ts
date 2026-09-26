@@ -30,10 +30,22 @@ export interface User extends BaseEntity {
   stripeCustomerId?: string;
   stripeAccountId?: string; // Stripe Connect account
   lastLoginAt?: Date;
+  profile?: Profile;
+  subscription?: Subscription;
+}
+
+export interface PortfolioItem {
+  id: string;
+  title: string;
+  description?: string;
+  imageUrl?: string;
+  link?: string;
+  projectUrl?: string;
 }
 
 export interface Profile extends BaseEntity {
   userId: string;
+  user?: User;
   fullName: string;
   headline?: string;
   bio?: string;
@@ -45,7 +57,8 @@ export interface Profile extends BaseEntity {
   website?: string;
   linkedin?: string;
   github?: string;
-  portfolio?: string;
+  portfolio?: PortfolioItem[];
+  skills?: Skill[];
 }
 
 export interface Skill extends BaseEntity {
@@ -56,6 +69,7 @@ export interface Skill extends BaseEntity {
 
 export interface Job extends BaseEntity {
   employerId: string;
+  employer?: { id: string; profile?: Profile };
   title: string;
   description: string; // Markdown
   type: JobType;
@@ -67,6 +81,7 @@ export interface Job extends BaseEntity {
   remote: boolean;
   status: JobStatus;
   skillIds: string[];
+  skills?: Skill[];
   expiresAt?: Date;
   viewsCount: number;
   applicationsCount: number;
@@ -169,19 +184,7 @@ export interface ApiError {
 
 export type ApiResponse<T> = ApiSuccess<T> | ApiError;
 
-// Auth types
-export interface RegisterInput {
-  email: string;
-  password: string;
-  role: UserRole;
-  fullName: string;
-}
-
-export interface LoginInput {
-  email: string;
-  password: string;
-}
-
+// Auth types - use validators.ts for RegisterInput/LoginInput
 export interface AuthTokens {
   accessToken: string;
   refreshToken: string;
@@ -230,4 +233,58 @@ export interface StripeConnectAccount {
     eventuallyDue: string[];
     pastDue: string[];
   };
+}
+
+// API Request types
+export interface JobQueryParams {
+  q?: string;
+  type?: JobType[];
+  category?: JobCategory[];
+  skills?: string[];
+  remote?: boolean;
+  location?: string;
+  budgetMin?: number;
+  budgetMax?: number;
+  status?: JobStatus[];
+  page?: number;
+  limit?: number;
+  sort?: 'createdAt' | 'budgetMax' | 'viewsCount';
+  order?: 'asc' | 'desc';
+}
+
+export interface ProfessionalQueryParams {
+  q?: string;
+  skills?: string[];
+  availability?: Availability[];
+  rateMin?: number;
+  rateMax?: number;
+  location?: string;
+  languages?: string[];
+  page?: number;
+  limit?: number;
+  sort?: 'hourlyRate' | 'createdAt' | 'rating';
+  order?: 'asc' | 'desc';
+}
+
+export interface CreatePaymentIntentInput {
+  milestoneId?: string;
+  amount: number;
+}
+
+export interface UpdateContractInput {
+  status?: ContractStatus;
+  terms?: string;
+}
+
+export interface UpdateMilestoneInput {
+  title?: string;
+  description?: string;
+  amount?: number;
+  dueDate?: Date;
+  status?: MilestoneStatus;
+}
+
+export interface SubmitMilestoneInput {
+  deliveryNotes?: string;
+  attachments?: string[];
 }

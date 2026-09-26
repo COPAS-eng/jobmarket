@@ -22,7 +22,7 @@ import {
   ChevronRight,
   Loader2,
 } from 'lucide-react';
-import { Job, JobType, JobCategory } from '@/shared/types';
+import { Job, JobType, JobCategory, JobStatus, JobQueryParams } from '@jobmarket/shared';
 import { jobsApi } from '@/services/api';
 
 const jobTypeLabels: Record<JobType, string> = {
@@ -46,6 +46,15 @@ const jobCategoryLabels: Record<JobCategory, string> = {
   OUTROS: 'Outros',
 };
 
+const jobStatusLabels: Record<JobStatus, string> = {
+  DRAFT: 'Rascunho',
+  OPEN: 'Aberta',
+  PAUSED: 'Pausada',
+  FILLED: 'Preenchida',
+  CLOSED: 'Fechada',
+  EXPIRED: 'Expirada',
+};
+
 export function JobsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -53,6 +62,7 @@ export function JobsPage() {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [filters, setFilters] = useState({
     q: searchParams.get('q') || '',
     type: searchParams.getAll('type') as JobType[],
@@ -65,6 +75,14 @@ export function JobsPage() {
     order: (searchParams.get('order') as 'asc' | 'desc') || 'desc',
   });
 
+  // Debounce search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(filters.q);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [filters.q]);
+
   const fetchJobs = async () => {
     setLoading(true);
     try {
@@ -72,7 +90,7 @@ export function JobsPage() {
       params.set('page', page.toString());
       params.set('limit', '12');
       
-      if (filters.q) params.set('q', filters.q);
+      if (debouncedSearch) params.set('q', debouncedSearch);
       filters.type.forEach(t => params.append('type', t));
       filters.category.forEach(c => params.append('category', c));
       if (filters.remote !== undefined) params.set('remote', filters.remote.toString());
@@ -82,10 +100,13 @@ export function JobsPage() {
       params.set('sort', filters.sort);
       params.set('order', filters.order);
 
-      const response = await jobsApi.list({ params });
-      setJobs(response.data.data);
-      setTotal(response.data.meta?.total || 0);
-      setTotalPages(response.data.meta?.totalPages || 1);
+      const response = await jobsApi.list(params as unknown as JobQueryParams);
+      const data = response.data as { success: boolean; data: Job[]; meta?: { total: number; totalPages: number } };
+      if (data.success) {
+        setJobs(data.data);
+        setTotal(data.meta?.total || 0);
+        setTotalPages(data.meta?.totalPages || 1);
+      }
     } catch (error) {
       console.error('Failed to fetch jobs:', error);
     } finally {
@@ -95,7 +116,7 @@ export function JobsPage() {
 
   useEffect(() => {
     fetchJobs();
-  }, [page, filters]);
+  }, [page, debouncedSearch, filters.type, filters.category, filters.remote, filters.budgetMin, filters.budgetMax, filters.skills, filters.sort, filters.order]);
 
   const handleFilterChange = (key: string, value: any) => {
     const newFilters = { ...filters, [key]: value };
@@ -172,7 +193,7 @@ export function JobsPage() {
                             type="checkbox"
                             checked={filters.type.includes(value)}
                             onChange={() => toggleArrayFilter('type', value)}
-                            className="h-4 w-4 rounded border-slate-300 text-cyan-500 focus:ring-cyan-500"
+                            className="h-4 w-4 rounded border-slate-300 text-cyan-700 focus:ring-cyan-500"
                           />
                           <span className="text-sm text-slate-700 dark:text-slate-300">{label}</span>
                         </label>
@@ -190,7 +211,7 @@ export function JobsPage() {
                             type="checkbox"
                             checked={filters.category.includes(value)}
                             onChange={() => toggleArrayFilter('category', value)}
-                            className="h-4 w-4 rounded border-slate-300 text-cyan-500 focus:ring-cyan-500"
+                            className="h-4 w-4 rounded border-slate-300 text-cyan-700 focus:ring-cyan-500"
                           />
                           <span className="text-sm text-slate-700 dark:text-slate-300">{label}</span>
                         </label>
@@ -206,28 +227,43 @@ export function JobsPage() {
                         { value: true, label: 'Remoto' },
                         { value: false, label: 'Presencial' },
                       ].map(({ value, label }) => (
-                        <label key={value} className="flex items-center gap-2 cursor-pointer">
+                        <label key={`remote-${value}`} className="flex items-center gap-2 cursor-pointer">
                           <input
                             type="radio"
                             name="remote"
                             checked={filters.remote === value}
                             onChange={() => handleFilterChange('remote', value)}
-                            className="h-4 w-4 border-slate-300 text-cyan-500 focus:ring-cyan-500"
+                            className="h-4 w-4 border-slate-300 text-cyan-700 focus:ring-cyan-500"
                           />
                           <span className="text-sm text-slate-700 dark:text-slate-300">{label}</span>
                         </label>
                       ))}
-                      <label className="flex items-center gap-2 cursor-pointer">
+                      <label key="remote-any" className="flex items-center gap-2 cursor-pointer">
                         <input
                           type="radio"
                           name="remote"
                           checked={filters.remote === undefined}
                           onChange={() => handleFilterChange('remote', undefined)}
-                          className="h-4 w-4 border-slate-300 text-cyan-500 focus:ring-cyan-500"
+                          className="h-4 w-4 border-slate-300 text-cyan-700 focus:ring-cyan-500"
                         />
                         <span className="text-sm text-slate-700 dark:text-slate-300">Qualquer um</span>
                       </label>
                     </div>
+                  </div>
+
+                  {/* Skills Filter */}
+                  <div>
+                    <label className="label">Skills (separados por vírgula)</label>
+                    <Input
+                      type="text"
+                      placeholder="React, TypeScript, Node.js"
+                      value={filters.skills.join(', ')}
+                      onChange={e => handleFilterChange('skills', e.target.value.split(',').map(s => s.trim()).filter(Boolean))}
+                      className="text-sm"
+                    />
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                      Filtre por tecnologias específicas
+                    </p>
                   </div>
 
                   {/* Budget Range */}
@@ -253,7 +289,7 @@ export function JobsPage() {
                   </div>
 
                   {/* Clear Filters */}
-                  {(filters.q || filters.type.length || filters.category.length || filters.remote !== undefined || filters.budgetMin || filters.budgetMax) && (
+                  {(filters.q || filters.type.length || filters.category.length || filters.remote !== undefined || filters.budgetMin || filters.budgetMax || filters.skills.length) && (
                     <Button variant="ghost" size="sm" className="w-full" onClick={() => {
                       setFilters({
                         q: '',
@@ -306,6 +342,11 @@ export function JobsPage() {
                       <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs">
                         <MapPin className="h-3 w-3" />
                         Presencial
+                      </span>
+                    )}
+                    {filters.skills.length && (
+                      <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 text-xs">
+                        {filters.skills.map(s => s).join(', ')}
                       </span>
                     )}
                   </div>
@@ -441,12 +482,12 @@ function JobCard({ job }: { job: Job }) {
       </p>
       
       <div className="flex flex-wrap gap-2 mb-4">
-        {job.skills.slice(0, 4).map(skill => (
+        {job.skills?.slice(0, 4).map(skill => (
           <Badge key={skill.id} variant="outline" size="sm">
             {skill.name}
           </Badge>
         ))}
-        {job.skills.length > 4 && (
+        {job.skills && job.skills.length > 4 && (
           <Badge variant="neutral" size="sm">+{job.skills.length - 4}</Badge>
         )}
       </div>

@@ -64,7 +64,7 @@ export function EmployerContracts() {
                       <DollarSign className="h-4 w-4" />
                       R$ {(contract.agreedRate/100).toFixed(2)}/mês
                     </span>
-                    <span className="flex items-center gap-1 text-cyan-500">
+                    <span className="flex items-center gap-1 text-cyan-700">
                       <TrendingUp className="h-4 w-4" />
                       {contract.progress}% concluído
                     </span>

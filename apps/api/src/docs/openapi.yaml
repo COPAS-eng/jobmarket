@@ -1,0 +1,939 @@
+openapi: '3.1.0'
+info:
+  title: JobMarket API
+  version: '1.0.0'
+  description: JobMarket platform API
+  contact:
+    name: API Support
+paths:
+  /api/auth/register:
+    post:
+      tags: [Auth]
+      summary: Register user
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, role, fullName]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 8
+                role:
+                  $ref: '#/components/schemas/UserRole'
+                fullName:
+                  type: string
+                  minLength: 2
+                  maxLength: 100
+      responses:
+        '201':
+          description: Registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthSuccess'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/auth/login:
+    post:
+      tags: [Auth]
+      summary: Login
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Logged in
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthSuccess'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  /api/auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Refresh token
+      operationId: refreshToken
+      responses:
+        '200':
+          description: Refreshed
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  /api/auth/logout:
+    post:
+      tags: [Auth]
+      summary: Logout
+      operationId: logoutUser
+      responses:
+        '200':
+          description: Logged out
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  /api/auth/me:
+    get:
+      tags: [Auth]
+      summary: Get current user
+      operationId: getCurrentUser
+      responses:
+        '200':
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  /api/jobs:
+    get:
+      tags: [Jobs]
+      summary: List jobs
+      operationId: listJobs
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Jobs list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedJobs'
+    post:
+      tags: [Jobs]
+      summary: Create job
+      operationId: createJob
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateJob'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  /api/jobs/{id}:
+    get:
+      tags: [Jobs]
+      summary: Get job
+      operationId: getJob
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Job
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    patch:
+      tags: [Jobs]
+      summary: Update job
+      operationId: updateJob
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateJob'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      tags: [Jobs]
+      summary: Delete job
+      operationId: deleteJob
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Deleted
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/proposals:
+    get:
+      tags: [Proposals]
+      summary: List proposals
+      operationId: listProposals
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Proposals list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedProposals'
+    post:
+      tags: [Proposals]
+      summary: Create proposal
+      operationId: createProposal
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProposal'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Proposal'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  /api/proposals/{id}:
+    get:
+      tags: [Proposals]
+      summary: Get proposal
+      operationId: getProposal
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Proposal
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Proposal'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/contracts:
+    get:
+      tags: [Contracts]
+      summary: List contracts
+      operationId: listContracts
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Contracts list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedContracts'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+    post:
+      tags: [Contracts]
+      summary: Create contract
+      operationId: createContract
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateContract'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contract'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  /api/contracts/{id}:
+    get:
+      tags: [Contracts]
+      summary: Get contract
+      operationId: getContract
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Contract
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contract'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    patch:
+      tags: [Contracts]
+      summary: Update contract
+      operationId: updateContract
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateContract'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contract'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/contracts/{contractId}/milestones:
+    post:
+      tags: [Milestones]
+      summary: Create milestone
+      operationId: createMilestone
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: contractId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMilestone'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Milestone'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  /api/contracts/{contractId}/milestones/{id}:
+    patch:
+      tags: [Milestones]
+      summary: Update milestone
+      operationId: updateMilestone
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: contractId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateMilestone'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Milestone'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/contracts/{contractId}/milestones/{id}/submit:
+    post:
+      tags: [Milestones]
+      summary: Submit milestone
+      operationId: submitMilestone
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: contractId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitMilestone'
+      responses:
+        '200':
+          description: Submitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Milestone'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  /api/contracts/{contractId}/milestones/{id}/review:
+    post:
+      tags: [Milestones]
+      summary: Review milestone
+      operationId: reviewMilestone
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: contractId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewMilestone'
+      responses:
+        '200':
+          description: Reviewed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Milestone'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  /api/users/me:
+    get:
+      tags: [Users]
+      summary: Get current user profile
+      operationId: getCurrentUserProfile
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  /api/users/me/profile:
+    patch:
+      tags: [Users]
+      summary: Update profile
+      operationId: updateProfile
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfile'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  /api/stripe/create-checkout-session:
+    post:
+      tags: [Stripe]
+      summary: Create checkout session
+      operationId: createCheckoutSession
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [contractId]
+              properties:
+                contractId:
+                  type: string
+      responses:
+        '200':
+          description: Session URL
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    format: uri
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '402':
+          $ref: '#/components/responses/PaymentRequiredError'
+  /api/stripe/webhook:
+    post:
+      tags: [Stripe]
+      summary: Stripe webhook
+      operationId: stripeWebhook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Processed
+        '400':
+          $ref: '#/components/responses/ValidationError'
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: refreshToken
+  schemas:
+    UserRole:
+      type: string
+      enum: [PROFISSIONAL, EMPREGADOR, ADMIN]
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+          format: email
+        role:
+          $ref: '#/components/schemas/UserRole'
+        fullName:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    AuthSuccess:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            user:
+              $ref: '#/components/schemas/User'
+    CreateJob:
+      type: object
+      required: [title, description, budget, deadline]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        budget:
+          type: number
+        deadline:
+          type: string
+          format: date
+        skills:
+          type: array
+          items:
+            type: string
+    UpdateJob:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        budget:
+          type: number
+        deadline:
+          type: string
+          format: date
+        skills:
+          type: array
+          items:
+            type: string
+    Job:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        budget:
+          type: number
+        deadline:
+          type: string
+          format: date
+        skills:
+          type: array
+          items:
+            type: string
+        employerId:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    PaginatedJobs:
+      type: object
+      properties:
+        jobs:
+          type: array
+          items:
+            $ref: '#/components/schemas/Job'
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+    CreateProposal:
+      type: object
+      required: [jobId, coverLetter, price]
+      properties:
+        jobId:
+          type: string
+        coverLetter:
+          type: string
+        price:
+          type: number
+    Proposal:
+      type: object
+      properties:
+        id:
+          type: string
+        jobId:
+          type: string
+        professionalId:
+          type: string
+        coverLetter:
+          type: string
+        price:
+          type: number
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    PaginatedProposals:
+      type: object
+      properties:
+        proposals:
+          type: array
+          items:
+            $ref: '#/components/schemas/Proposal'
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+    CreateContract:
+      type: object
+      required: [jobId, professionalId]
+      properties:
+        jobId:
+          type: string
+        professionalId:
+          type: string
+    UpdateContract:
+      type: object
+      properties:
+        status:
+          type: string
+        totalAmount:
+          type: number
+    Contract:
+      type: object
+      properties:
+        id:
+          type: string
+        jobId:
+          type: string
+        professionalId:
+          type: string
+        employerId:
+          type: string
+        status:
+          type: string
+        totalAmount:
+          type: number
+        milestones:
+          type: array
+          items:
+            $ref: '#/components/schemas/Milestone'
+        createdAt:
+          type: string
+          format: date-time
+    PaginatedContracts:
+      type: object
+      properties:
+        contracts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Contract'
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+    CreateMilestone:
+      type: object
+      required: [title, description, amount, dueDate]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        amount:
+          type: number
+        dueDate:
+          type: string
+          format: date
+    UpdateMilestone:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        amount:
+          type: number
+        dueDate:
+          type: string
+          format: date
+    SubmitMilestone:
+      type: object
+      properties:
+        deliverables:
+          type: string
+    ReviewMilestone:
+      type: object
+      required: [approved]
+      properties:
+        approved:
+          type: boolean
+        feedback:
+          type: string
+    Milestone:
+      type: object
+      properties:
+        id:
+          type: string
+        contractId:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        amount:
+          type: number
+        dueDate:
+          type: string
+          format: date
+        status:
+          type: string
+        deliverables:
+          type: string
+        feedback:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    UpdateProfile:
+      type: object
+      properties:
+        fullName:
+          type: string
+        bio:
+          type: string
+        skills:
+          type: array
+          items:
+            type: string
+  responses:
+    ValidationError:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    UnauthorizedError:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFoundError:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    ConflictError:
+      description: Conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    PaymentRequiredError:
+      description: Payment required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          enum: [false]
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              type: array
+              items:
+                type: object
+                properties:
+                  field:
+                    type: string
+                  message:
+                    type: string

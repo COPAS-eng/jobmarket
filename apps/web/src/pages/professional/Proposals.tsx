@@ -14,6 +14,8 @@ import {
   Filter,
   ChevronLeft,
   ChevronRight,
+  Eye,
+  Plus,
 } from 'lucide-react';
 
 const proposals = [
@@ -101,7 +103,7 @@ export function ProfessionalProposals() {
                       {proposal.estimatedDays} dias
                     </span>
                     {proposal.viewedAt && (
-                      <span className="flex items-center gap-1 text-cyan-500">
+                      <span className="flex items-center gap-1 text-cyan-700">
                         <Eye className="h-4 w-4" />
                         Visto {proposal.viewedAt}
                       </span>
@@ -137,5 +139,16 @@ export function ProfessionalProposals() {
         </div>
       </ScrollReveal>
     </div>
+  );
+}
+
+function Select({ options, placeholder, className }: { options: { value: string; label: string }[]; placeholder: string; className?: string }) {
+  return (
+    <select className={cn('input appearance-none bg-no-repeat bg-right pr-10', 'bg-[url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 fill=%27none%27 viewBox=%270 0 20 20%27%3E%3Cpath stroke=%27%236b7280%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%271.5%27 d=%27M6 8l4 4 4-4%27/%3E%3C/svg%3E")]', className)}>
+      <option value="" disabled>{placeholder}</option>
+      {options.map(opt => (
+        <option key={opt.value} value={opt.value}>{opt.label}</option>
+      ))}
+    </select>
   );
 }

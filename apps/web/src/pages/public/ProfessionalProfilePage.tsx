@@ -24,7 +24,7 @@ import {
   Share2,
   Bookmark,
 } from 'lucide-react';
-import { Profile } from '@/shared/types';
+import { Profile, Availability } from '@jobmarket/shared';
 import { usersApi } from '@/services/api';
 import { useToast } from '@/components/ui/Toast';
 
@@ -86,7 +86,7 @@ export function ProfessionalProfilePage() {
     );
   }
 
-  const topSkills = profile.skills.slice(0, 6);
+  const topSkills = profile.skills?.slice(0, 6) || [];
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
@@ -112,20 +112,18 @@ export function ProfessionalProfilePage() {
                   <h1 className="font-display font-bold text-3xl text-slate-950 dark:text-white">
                     {profile.fullName}
                   </h1>
-                  {profile.user?.subscription?.plan !== 'FREE' && (
-                    <Badge variant={profile.user.subscription.plan === 'PRO' ? 'primary' : 'success'}>
-                      {profile.user.subscription.plan}
-                    </Badge>
+                  {profile && (
+                    <Badge variant="primary">Profissional</Badge>
                   )}
                 </div>
                 <p className="text-xl text-slate-600 dark:text-slate-300 mb-3">
                   {profile.headline || 'Profissional disponível para novas oportunidades'}
                 </p>
                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-sm text-slate-500 dark:text-slate-400">
-                  {profile.availability !== 'UNAVAILABLE' && (
+                  {profile.availability !== Availability.UNAVAILABLE && (
                     <span className="flex items-center gap-1">
                       <Globe className="h-4 w-4" />
-                      Disponível: {profile.availability === 'FULL_TIME' ? 'Tempo integral' : profile.availability === 'PART_TIME' ? 'Meio período' : 'Freelance'}
+                      Disponível: {profile.availability === Availability.FULL_TIME ? 'Tempo integral' : profile.availability === Availability.PART_TIME ? 'Meio período' : 'Freelance'}
                     </span>
                   )}
                   {profile.hourlyRate && (
@@ -143,25 +141,25 @@ export function ProfessionalProfilePage() {
                 </div>
                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 mt-4">
                   {profile.website && (
-                    <a href={profile.website} target="_blank" rel="noopener noreferrer" className="text-cyan-500 hover:text-cyan-400 flex items-center gap-1">
+                    <a href={profile.website} target="_blank" rel="noopener noreferrer" className="text-cyan-700 hover:text-cyan-600 flex items-center gap-1">
                       <ExternalLink className="h-4 w-4" /> Portfolio
                     </a>
                   )}
                   {profile.linkedin && (
-                    <a href={profile.linkedin} target="_blank" rel="noopener noreferrer" className="text-cyan-500 hover:text-cyan-400 flex items-center gap-1">
+                    <a href={profile.linkedin} target="_blank" rel="noopener noreferrer" className="text-cyan-700 hover:text-cyan-600 flex items-center gap-1">
                       <Linkedin className="h-4 w-4" /> LinkedIn
                     </a>
                   )}
                   {profile.github && (
-                    <a href={profile.github} target="_blank" rel="noopener noreferrer" className="text-cyan-500 hover:text-cyan-400 flex items-center gap-1">
+                    <a href={profile.github} target="_blank" rel="noopener noreferrer" className="text-cyan-700 hover:text-cyan-600 flex items-center gap-1">
                       <Github className="h-4 w-4" /> GitHub
                     </a>
                   )}
-                  <Button variant="outline" size="sm" asChild>
-                    <Link href={`mailto:${profile.user?.email || '#'}`}>
-                      <Mail className="h-4 w-4 mr-2" /> Contatar
-                    </Link>
-                  </Button>
+<Button variant="outline" size="sm" asChild>
+                      <Link to={`mailto:${profile.user?.email || '#'}`}>
+                        <Mail className="h-4 w-4 mr-2" /> Contatar
+                      </Link>
+                    </Button>
                 </div>
               </div>
             </div>
@@ -173,7 +171,7 @@ export function ProfessionalProfilePage() {
           <ScrollReveal delay={0.1}>
             <Card>
               <div className="flex items-center gap-2 mb-4">
-                <Code className="h-5 w-5 text-cyan-500" />
+                <Code className="h-5 w-5 text-cyan-700" />
                 <h2 className="font-display font-bold text-xl text-slate-950 dark:text-white">Sobre</h2>
               </div>
               <p className="text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">
@@ -187,13 +185,13 @@ export function ProfessionalProfilePage() {
         <ScrollReveal delay={0.2}>
           <Card>
             <div className="flex items-center gap-2 mb-4">
-              <Code className="h-5 w-5 text-cyan-500" />
+              <Code className="h-5 w-5 text-cyan-700" />
               <h2 className="font-display font-bold text-xl text-slate-950 dark:text-white">
-                Skills ({profile.skills.length})
+                Skills ({profile.skills?.length || 0})
               </h2>
             </div>
             <div className="flex flex-wrap gap-2">
-              {profile.skills.map(skill => (
+              {profile.skills?.map(skill => (
                 <Badge key={skill.id} variant="outline">
                   {skill.name}
                 </Badge>
@@ -207,7 +205,7 @@ export function ProfessionalProfilePage() {
           <ScrollReveal delay={0.3}>
             <Card>
               <div className="flex items-center gap-2 mb-4">
-                <Code className="h-5 w-5 text-cyan-500" />
+                <Code className="h-5 w-5 text-cyan-700" />
                 <h2 className="font-display font-bold text-xl text-slate-950 dark:text-white">Idiomas</h2>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -220,24 +218,24 @@ export function ProfessionalProfilePage() {
         )}
 
         {/* Portfolio */}
-        {profile.portfolio?.length > 0 && (
+        {profile.portfolio && profile.portfolio.length > 0 && (
           <ScrollReveal delay={0.4}>
             <Card>
               <div className="flex items-center gap-2 mb-4">
-                <Briefcase className="h-5 w-5 text-cyan-500" />
+                <Briefcase className="h-5 w-5 text-cyan-700" />
                 <h2 className="font-display font-bold text-xl text-slate-950 dark:text-white">
                   Portfolio ({profile.portfolio.length})
                 </h2>
               </div>
               <div className="grid sm:grid-cols-2 gap-4">
                 {profile.portfolio.map((item, i) => (
-                  <Link key={i} to={item.projectUrl || '#'} target="_blank" rel="noopener noreferrer" className="card-hover group">
+                  <Link key={i} to={item.projectUrl || item.link || '#'} target="_blank" rel="noopener noreferrer" className="card-hover group">
                     {item.imageUrl && (
                       <div className="h-32 rounded-xl overflow-hidden mb-3 relative">
                         <img src={item.imageUrl} alt={item.title} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" />
                       </div>
                     )}
-                    <h3 className="font-medium text-slate-950 dark:text-white group-hover:text-cyan-500 transition-colors">
+                    <h3 className="font-medium text-slate-950 dark:text-white group-hover:text-cyan-700 transition-colors">
                       {item.title}
                     </h3>
                     {item.description && (

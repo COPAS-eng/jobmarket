@@ -1,5 +1,4 @@
-import type { z } from 'zod';
-import {
+import type {
   UserRole,
   JobType,
   JobCategory,
@@ -15,6 +14,22 @@ import {
   Availability,
 } from './enums';
 
+export type {
+  UserRole,
+  JobType,
+  JobCategory,
+  SkillCategory,
+  JobStatus,
+  ProposalStatus,
+  ContractType,
+  ContractStatus,
+  MilestoneStatus,
+  PaymentStatus,
+  SubscriptionPlan,
+  SubscriptionStatus,
+  Availability,
+};
+
 // Base entity types
 export interface BaseEntity {
   id: string;
@@ -25,15 +40,29 @@ export interface BaseEntity {
 export interface User extends BaseEntity {
   email: string;
   passwordHash: string;
+  fullName?: string;
+  avatar?: string;
   role: UserRole;
   emailVerified: boolean;
   stripeCustomerId?: string;
   stripeAccountId?: string; // Stripe Connect account
   lastLoginAt?: Date;
+  profile?: Profile;
+  subscription?: Subscription;
+}
+
+export interface PortfolioItem {
+  id: string;
+  title: string;
+  description?: string;
+  imageUrl?: string;
+  link?: string;
+  projectUrl?: string;
 }
 
 export interface Profile extends BaseEntity {
   userId: string;
+  user?: User;
   fullName: string;
   headline?: string;
   bio?: string;
@@ -45,7 +74,8 @@ export interface Profile extends BaseEntity {
   website?: string;
   linkedin?: string;
   github?: string;
-  portfolio?: string;
+  portfolio?: PortfolioItem[];
+  skills: Skill[];
 }
 
 export interface Skill extends BaseEntity {
@@ -170,18 +200,6 @@ export interface ApiError {
 export type ApiResponse<T> = ApiSuccess<T> | ApiError;
 
 // Auth types
-export interface RegisterInput {
-  email: string;
-  password: string;
-  role: UserRole;
-  fullName: string;
-}
-
-export interface LoginInput {
-  email: string;
-  password: string;
-}
-
 export interface AuthTokens {
   accessToken: string;
   refreshToken: string;
@@ -230,4 +248,57 @@ export interface StripeConnectAccount {
     eventuallyDue: string[];
     pastDue: string[];
   };
+}
+
+export interface JobQueryParams {
+  q?: string;
+  type?: JobType[];
+  category?: JobCategory[];
+  skills?: string[];
+  remote?: boolean;
+  location?: string;
+  budgetMin?: number;
+  budgetMax?: number;
+  status?: JobStatus[];
+  page?: number;
+  limit?: number;
+  sort?: 'createdAt' | 'budgetMax' | 'viewsCount';
+  order?: 'asc' | 'desc';
+}
+
+export interface CreatePaymentIntentInput {
+  milestoneId?: string;
+  amount: number;
+}
+
+export interface UpdateContractInput {
+  status?: ContractStatus;
+  terms?: string;
+}
+
+export interface UpdateMilestoneInput {
+  title?: string;
+  description?: string;
+  amount?: number;
+  dueDate?: Date;
+  status?: MilestoneStatus;
+}
+
+export interface SubmitMilestoneInput {
+  deliveryNotes?: string;
+  attachments?: string[];
+}
+
+export interface ProfessionalQueryParams {
+  q?: string;
+  skills?: string[];
+  availability?: Availability[];
+  rateMin?: number;
+  rateMax?: number;
+  location?: string;
+  languages?: string[];
+  page?: number;
+  limit?: number;
+  sort?: 'hourlyRate' | 'createdAt' | 'rating';
+  order?: 'asc' | 'desc';
 }

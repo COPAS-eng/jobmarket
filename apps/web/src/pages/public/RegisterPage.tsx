@@ -11,13 +11,11 @@ import { Badge } from '@/components/ui/Badge';
 import { useToast } from '@/components/ui/Toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/utils/cn';
-import { registerSchema, UserRole } from '@/shared/validators';
+import { registerSchema } from '@/shared/validators';
+import { UserRole } from '@jobmarket/shared';
 import {
-  Mail,
-  Lock,
   User,
   Briefcase,
-  Code,
   Eye,
   EyeOff,
   ArrowRight,
@@ -61,7 +59,7 @@ export function RegisterPage() {
       email: '',
       password: '',
       confirmPassword: '',
-      role: roleFromUrl || 'PROFISSIONAL',
+      role: (roleFromUrl || 'PROFISSIONAL') as UserRole,
       fullName: '',
       acceptTerms: false,
     },
@@ -70,9 +68,10 @@ export function RegisterPage() {
   const watchedRole = watch('role');
 
   const onSubmit = async (data: RegisterForm) => {
+    const { confirmPassword, acceptTerms, ...registerData } = data;
     setLoading(true);
     try {
-      await registerUser(data.email, data.password, data.role, data.fullName);
+      await registerUser(registerData);
       toast.success('Conta criada com sucesso! Bem-vindo ao JobMarket.');
       navigate(redirectTo, { replace: true });
     } catch (error: any) {
@@ -153,7 +152,6 @@ export function RegisterPage() {
               autoComplete="name"
               error={errors.fullName?.message}
               {...register('fullName')}
-              icon={<User className="h-5 w-5" />}
             />
 
             <Input
@@ -163,7 +161,6 @@ export function RegisterPage() {
               autoComplete="email"
               error={errors.email?.message}
               {...register('email')}
-              icon={<Mail className="h-5 w-5" />}
             />
 
             <div className="relative">
@@ -174,7 +171,6 @@ export function RegisterPage() {
                 autoComplete="new-password"
                 error={errors.password?.message}
                 {...register('password')}
-                icon={<Lock className="h-5 w-5" />}
               />
               <button
                 type="button"
@@ -191,26 +187,25 @@ export function RegisterPage() {
               type={showPassword ? 'text' : 'password'}
               placeholder="••••••••"
               autoComplete="new-password"
-              error={errors.confirmPassword?.message}
-              {...register('confirmPassword')}
-              icon={<Lock className="h-5 w-5" />}
-            />
+error={errors.confirmPassword?.message}
+                {...register('confirmPassword')}
+              />
 
             {/* Terms */}
             <div className="flex items-start gap-3">
               <input
                 type="checkbox"
                 id="terms"
-                className="h-4 w-4 mt-0.5 rounded border-slate-300 text-cyan-500 focus:ring-cyan-500"
+                className="h-4 w-4 mt-0.5 rounded border-slate-300 text-cyan-700 focus:ring-cyan-500"
                 {...register('acceptTerms', { required: true })}
               />
               <label htmlFor="terms" className="text-sm text-slate-600 dark:text-slate-400">
-                Aceito os <Link to="/termos" className="text-cyan-500 hover:text-cyan-400 underline">Termos de Uso</Link> e a <Link to="/privacidade" className="text-cyan-500 hover:text-cyan-400 underline">Política de Privacidade</Link>
+                Aceito os <Link to="/termos" className="text-cyan-700 hover:text-cyan-600 underline">Termos de Uso</Link> e a <Link to="/privacidade" className="text-cyan-700 hover:text-cyan-600 underline">Política de Privacidade</Link>
               </label>
             </div>
 
             {errors.acceptTerms && (
-              <p className="text-sm text-red-500" role="alert">Você deve aceitar os termos para continuar</p>
+              <p className="text-sm text-red-500" role="alert" aria-live="assertive">Você deve aceitar os termos para continuar</p>
             )}
 
             <Button type="submit" className="w-full" size="lg" loading={loading}>
@@ -230,7 +225,7 @@ export function RegisterPage() {
 
           <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
             Já tem conta?{' '}
-            <Link to="/login" className="text-cyan-500 hover:text-cyan-400 font-medium">
+            <Link to="/login" className="text-cyan-700 hover:text-cyan-600 font-medium">
               Faça login
             </Link>
           </p>

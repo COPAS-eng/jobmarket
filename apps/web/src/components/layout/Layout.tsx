@@ -110,8 +110,8 @@ export function Layout({ children }: LayoutProps) {
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-            {items.map(item => {
+          <nav aria-label="Menu lateral" className="flex-1 p-4 space-y-1 overflow-y-auto">
+            {items.map((item: { label: string; href: string; icon: React.ComponentType<{ className?: string }> }) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.href || 
                 (item.href !== '/dashboard' && location.pathname.startsWith(item.href));
@@ -142,7 +142,7 @@ export function Layout({ children }: LayoutProps) {
                 {user.profile?.avatar ? (
                   <img src={user.profile.avatar} alt="" className="h-10 w-10 rounded-xl" />
                 ) : (
-                  user.profile?.fullName?.charAt(0).toUpperCase()
+                  user.profile?.fullName?.charAt(0).toUpperCase() || user.email.charAt(0).toUpperCase()
                 )}
               </div>
               <div className="flex-1 min-w-0">
@@ -178,9 +178,10 @@ export function Layout({ children }: LayoutProps) {
                 <input
                   type="search"
                   placeholder="Buscar vagas, profissionais..."
+                  aria-label="Buscar vagas, profissionais"
                   className="w-full pl-10 pr-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                 />
-                <svg className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </div>
@@ -194,11 +195,11 @@ export function Layout({ children }: LayoutProps) {
                 aria-expanded={userMenuOpen}
                 aria-haspopup="true"
               >
-                <div className={cn('h-8 w-8 rounded-xl flex items-center justify-center text-white font-medium', 'bg-cyan-500')}>
+                <div className={cn('h-8 w-8 rounded-xl flex items-center justify-center text-white font-medium', user.profile?.avatar ? '' : 'bg-cyan-500')}>
                   {user.profile?.avatar ? (
                     <img src={user.profile.avatar} alt="" className="h-8 w-8 rounded-xl" />
                   ) : (
-                    user.profile?.fullName?.charAt(0).toUpperCase()
+                    user.profile?.fullName?.charAt(0).toUpperCase() || user.email.charAt(0).toUpperCase()
                   )}
                 </div>
                 <span className="hidden sm:block text-sm font-medium text-slate-700 dark:text-slate-300">

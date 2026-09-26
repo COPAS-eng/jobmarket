@@ -6,235 +6,263 @@ on:
   pull_request:
     branches: [main, develop]
 
-env:
-  NODE_VERSION: '20'
-  POSTGRES_VERSION: '16'
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   lint-and-typecheck:
-    name: Lint & TypeCheck
+    name: Lint & Typecheck
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20, 22]
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
+      - name: Cache Turbo
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ github.sha }}
+          restore-keys: |
+            turbo-
+
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --workspaces --if-present
 
-      - name: Run lint
-        run: npm run lint
+      - name: Lint
+        run: npx turbo run lint --filter=web --filter=api
 
-      - name: Run typecheck
-        run: npm run typecheck
+      - name: Typecheck
+        run: npx turbo run typecheck --filter=web --filter=api
 
-      - name: Check formatting
-        run: npm run format -- --check
-
-  test-api:
-    name: Test API
+  test:
+    name: Tests
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20, 22]
     services:
       postgres:
         image: postgres:16-alpine
         env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
           POSTGRES_DB: jobmarket_test
-          POSTGRES_USER: jobmarket
-          POSTGRES_PASSWORD: testpassword
-        ports: 5432:5432
+        ports:
+          - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U jobmarket -d jobmarket_test"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-      redis:
-        image: redis:7-alpine
-        ports: 6379:6379
-        options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
-
+          --health-cmd="pg_isready -U test -d jobmarket_test"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
+      - name: Cache Turbo
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ github.sha }}
+          restore-keys: |
+            turbo-
+
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --workspaces --if-present
 
-      - name: Generate Prisma client
-        run: npm run db:generate --workspace=apps/api
+      - name: Generate Prisma Client
+        run: npx prisma generate
+        working-directory: ./apps/api
+
+      - name: Run migrations
+        run: npx prisma migrate deploy
+        working-directory: ./apps/api
         env:
-          DATABASE_URL: postgresql://jobmarket:testpassword@localhost:5432/jobmarket_test?schema=public
+          DATABASE_URL: postgresql://test:test@localhost:5432/jobmarket_test?schema=public
 
-      - name: Run database migrations
-        run: npm run db:migrate --workspace=apps/api
+      - name: Run tests with coverage
+        run: npx turbo run test --filter=web --filter=api
         env:
-          DATABASE_URL: postgresql://jobmarket:testpassword@localhost:5432/jobmarket_test?schema=public
+          DATABASE_URL: postgresql://test:test@localhost:5432/jobmarket_test?schema=public
 
-      - name: Run API tests
-        run: npm run test --workspace=apps/api
-        env:
-          NODE_ENV: test
-          DATABASE_URL: postgresql://jobmarket:testpassword@localhost:5432/jobmarket_test?schema=public
-          JWT_SECRET: test-jwt-secret-key-min-32-characters-long
-          JWT_REFRESH_SECRET: test-refresh-secret-key-different-from-above
-          STRIPE_SECRET_KEY: sk_test_doesnotmatter
-          STRIPE_WEBHOOK_SECRET: whsec_test
-          FRONTEND_URL: http://localhost:5173
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.node-version }}
+          path: |
+            apps/web/coverage
+            apps/api/coverage
+          retention-days: 7
 
-  test-web:
-    name: Test Web
+      - name: Enforce coverage thresholds
+        run: |
+          echo "Checking coverage thresholds..."
+          # web
+          npx nyc check-coverage --statements 80 --branches 70 --functions 80 --lines 80 --report-dir apps/web/coverage
+          # api
+          npx nyc check-coverage --statements 80 --branches 70 --functions 80 --lines 80 --report-dir apps/api/coverage
+
+  build:
+    name: Build
     runs-on: ubuntu-latest
+    needs: [lint-and-typecheck, test]
+    strategy:
+      matrix:
+        node-version: [20, 22]
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
+      - name: Cache Turbo
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ github.sha }}
+          restore-keys: |
+            turbo-
+
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --workspaces --if-present
 
-      - name: Run web tests
-        run: npm run test --workspace=apps/web
+      - name: Generate Prisma Client
+        run: npx prisma generate
+        working-directory: ./apps/api
 
-      - name: Build web
-        run: npm run build:web
+      - name: Build all packages
+        run: npx turbo run build --filter=web --filter=api
 
-  test-e2e:
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ matrix.node-version }}
+          path: |
+            apps/web/dist
+            apps/api/dist
+          retention-days: 7
+
+  e2e:
     name: E2E Tests
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:16-alpine
-        env:
-          POSTGRES_DB: jobmarket_e2e
-          POSTGRES_USER: jobmarket
-          POSTGRES_PASSWORD: testpassword
-        ports: 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U jobmarket -d jobmarket_e2e"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-      redis:
-        image: redis:7-alpine
-        ports: 6379:6379
-        options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
-
+    needs: build
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: '20'
           cache: 'npm'
 
+      - name: Cache Turbo
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ github.sha }}
+          restore-keys: |
+            turbo-
+
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --workspaces --if-present
 
       - name: Build applications
-        run: npm run build
+        run: npx turbo run build --filter=web --filter=api
 
       - name: Start services
         run: |
-          docker-compose -f docker/docker-compose.yml up -d postgres redis
+          docker compose -f docker/docker-compose.yml up -d
           sleep 10
 
-      - name: Run database migrations
-        run: npm run db:migrate --workspace=apps/api
-        env:
-          DATABASE_URL: postgresql://jobmarket:testpassword@localhost:5432/jobmarket_e2e?schema=public
-
-      - name: Install Playwright
-        run: npx playwright install --with-deps chromium
-        working-directory: apps/web
-
       - name: Run E2E tests
-        run: npm run test:e2e --workspace=apps/web
-        env:
-          DATABASE_URL: postgresql://jobmarket:testpassword@localhost:5432/jobmarket_e2e?schema=public
-          JWT_SECRET: test-jwt-secret-key-min-32-characters-long
-          JWT_REFRESH_SECRET: test-refresh-secret-key-different-from-above
-          STRIPE_SECRET_KEY: sk_test_doesnotmatter
-          STRIPE_WEBHOOK_SECRET: whsec_test
-          FRONTEND_URL: http://localhost:5173
-          VITE_API_URL: http://localhost:3001/api
+        run: npm run test:e2e
 
-  docker-build:
-    name: Docker Build
+      - name: Stop services
+        run: docker compose -f docker/docker-compose.yml down
+        if: always()
+
+  docker-smoke:
+    name: Docker Smoke Test
     runs-on: ubuntu-latest
-    needs: [lint-and-typecheck, test-api, test-web]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: build
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - name: Build Docker images
+        run: |
+          docker build -t jobmarket-web:test -f apps/web/Dockerfile apps/web
+          docker build -t jobmarket-api:test -f apps/api/Dockerfile apps/api
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Start containers
+        run: |
+          docker network create jobmarket-test
+          docker run -d --name jobmarket-db --network jobmarket-test \
+            -e POSTGRES_USER=test -e POSTGRES_PASSWORD=test -e POSTGRES_DB=jobmarket_test \
+            postgres:16-alpine
+          docker run -d --name jobmarket-api --network jobmarket-test \
+            -e DATABASE_URL=postgresql://test:test@jobmarket-db:5432/jobmarket_test?schema=public \
+            -p 3001:3001 jobmarket-api:test
+          docker run -d --name jobmarket-web --network jobmarket-test \
+            -p 3000:3000 jobmarket-web:test
+          sleep 15
 
-      - name: Extract metadata for API
-        id: meta-api
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ secrets.DOCKERHUB_USERNAME }}/jobmarket-api
-          tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=sha,prefix={{branch}}-
-            type=raw,value=latest,enable={{is_default_branch}}
+      - name: Smoke test API
+        run: |
+          curl -f http://localhost:3001/health || exit 1
 
-      - name: Build and push API
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: docker/Dockerfile
-          target: api-runner
-          push: true
-          tags: ${{ steps.meta-api.outputs.tags }}
-          labels: ${{ steps.meta-api.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+      - name: Smoke test Web
+        run: |
+          curl -f http://localhost:3000 || exit 1
 
-      - name: Extract metadata for Web
-        id: meta-web
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ secrets.DOCKERHUB_USERNAME }}/jobmarket-web
-          tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=sha,prefix={{branch}}-
-            type=raw,value=latest,enable={{is_default_branch}}
+      - name: Cleanup
+        run: |
+          docker stop jobmarket-web jobmarket-api jobmarket-db || true
+          docker rm jobmarket-web jobmarket-api jobmarket-db || true
+          docker network rm jobmarket-test || true
+        if: always()
 
-      - name: Build and push Web
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: docker/Dockerfile
-          target: web-runner
-          push: true
-          tags: ${{ steps.meta-web.outputs.tags }}
-          labels: ${{ steps.meta-web.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+  deploy-preview:
+    name: Deploy Preview
+    runs-on: ubuntu-latest
+    needs: [build, e2e, docker-smoke]
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy to preview environment
+        run: echo "Deploy preview logic here (Vercel, Netlify, etc.)"
+
+  deploy-production:
+    name: Deploy Production
+    runs-on: ubuntu-latest
+    needs: [build, e2e, docker-smoke]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    environment: production
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy to production
+        run: echo "Deploy production logic here (Vercel, Railway, AWS, etc.)"

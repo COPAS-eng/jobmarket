@@ -11,14 +11,7 @@ import { useToast } from '@/components/ui/Toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/utils/cn';
 import { loginSchema } from '@/shared/validators';
-import {
-  Mail,
-  Lock,
-  Eye,
-  EyeOff,
-  ArrowRight,
-  Loader2,
-} from 'lucide-react';
+import { Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react';
 
 type LoginForm = {
   email: string;
@@ -84,7 +77,7 @@ export function LoginPage() {
               autoComplete="email"
               error={errors.email?.message}
               {...register('email')}
-              icon={<Mail className="h-5 w-5" />}
+
             />
 
             <div className="relative">
@@ -95,7 +88,7 @@ export function LoginPage() {
                 autoComplete="current-password"
                 error={errors.password?.message}
                 {...register('password')}
-                icon={<Lock className="h-5 w-5" />}
+  
               />
               <button
                 type="button"
@@ -109,10 +102,10 @@ export function LoginPage() {
 
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" className="h-4 w-4 rounded border-slate-300 text-cyan-500 focus:ring-cyan-500" />
+                <input type="checkbox" className="h-4 w-4 rounded border-slate-300 text-cyan-700 focus:ring-cyan-500" />
                 <span className="text-sm text-slate-600 dark:text-slate-400">Lembrar-me</span>
               </label>
-              <Link to="/recuperar-senha" className="text-sm text-cyan-500 hover:text-cyan-400">
+              <Link to="/recuperar-senha" className="text-sm text-cyan-700 hover:text-cyan-600">
                 Esqueceu a senha?
               </Link>
             </div>
@@ -163,7 +156,7 @@ export function LoginPage() {
 
           <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
             Não tem conta?{' '}
-            <Link to="/cadastro" className="text-cyan-500 hover:text-cyan-400 font-medium">
+            <Link to="/cadastro" className="text-cyan-700 hover:text-cyan-600 font-medium">
               Cadastre-se grátis
             </Link>
           </p>

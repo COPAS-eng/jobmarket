@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/Button';
 import { Badge, StatusBadge } from '@/components/ui/Badge';
 import { Link } from 'react-router-dom';
 import { Plus, ArrowRight, Search, Filter } from 'lucide-react';
+import { cn } from '@/utils/cn';
 
 const jobs = [
   { id: '1', title: 'Senior React Developer', type: 'FULL_TIME', status: 'OPEN', applications: 12, views: 156, date: '3 dias atrás' },

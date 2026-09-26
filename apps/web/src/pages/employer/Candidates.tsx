@@ -67,5 +67,3 @@ export function EmployerCandidates() {
     </div>
   );
 }
-
-import { ArrowRight } from 'lucide-react';

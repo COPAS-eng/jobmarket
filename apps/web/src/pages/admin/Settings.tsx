@@ -11,7 +11,7 @@ export function AdminSettings() {
       <ScrollReveal>
         <div className="mb-8">
           <h1 className="font-display font-bold text-3xl text-slate-950 dark:text-white flex items-center gap-3">
-            <SettingsIcon className="h-8 w-8 text-cyan-500" />
+            <SettingsIcon className="h-8 w-8 text-cyan-700" />
             Configurações da Plataforma
           </h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">
@@ -24,7 +24,7 @@ export function AdminSettings() {
         <Card>
           <div className="flex items-center justify-between mb-6">
             <h2 className="font-display font-bold text-xl text-slate-950 dark:text-white flex items-center gap-2">
-              <DollarSign className="h-6 w-6 text-cyan-500" />
+              <DollarSign className="h-6 w-6 text-cyan-700" />
               Comissões da Plataforma
             </h2>
             <Badge variant="primary">Ao vivo</Badge>
@@ -58,19 +58,19 @@ export function AdminSettings() {
           <div className="space-y-4">
             <label className="flex items-center justify-between">
               <span className="text-slate-950 dark:text-white">Verificação de email obrigatória</span>
-              <input type="checkbox" className="h-5 w-5 rounded border-slate-300 text-cyan-500 focus:ring-cyan-500" defaultChecked />
+              <input type="checkbox" className="h-5 w-5 rounded border-slate-300 text-cyan-700 focus:ring-cyan-500" defaultChecked />
             </label>
             <label className="flex items-center justify-between">
               <span className="text-slate-950 dark:text-white">Aprovação manual de novos empregadores</span>
-              <input type="checkbox" className="h-5 w-5 rounded border-slate-300 text-cyan-500 focus:ring-cyan-500" />
+              <input type="checkbox" className="h-5 w-5 rounded border-slate-300 text-cyan-700 focus:ring-cyan-500" />
             </label>
             <label className="flex items-center justify-between">
               <span className="text-slate-950 dark:text-white">Moderação automática de conteúdo suspeito</span>
-              <input type="checkbox" className="h-5 w-5 rounded border-slate-300 text-cyan-500 focus:ring-cyan-500" defaultChecked />
+              <input type="checkbox" className="h-5 w-5 rounded border-slate-300 text-cyan-700 focus:ring-cyan-500" defaultChecked />
             </label>
             <label className="flex items-center justify-between">
               <span className="text-slate-950 dark:text-white">Notificações de segurança por email</span>
-              <input type="checkbox" className="h-5 w-5 rounded border-slate-300 text-cyan-500 focus:ring-cyan-500" defaultChecked />
+              <input type="checkbox" className="h-5 w-5 rounded border-slate-300 text-cyan-700 focus:ring-cyan-500" defaultChecked />
             </label>
           </div>
         </Card>
