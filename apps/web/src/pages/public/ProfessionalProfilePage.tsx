@@ -24,7 +24,7 @@ import {
   Share2,
   Bookmark,
 } from 'lucide-react';
-import { Profile, Availability } from '@jobmarket/shared';
+import { Profile, Availability } from '@/shared';
 import { usersApi } from '@/services/api';
 import { useToast } from '@/components/ui/Toast';
 

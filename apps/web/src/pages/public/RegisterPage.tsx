@@ -12,7 +12,7 @@ import { useToast } from '@/components/ui/Toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/utils/cn';
 import { registerSchema } from '@/shared/validators';
-import { UserRole } from '@jobmarket/shared';
+import { UserRole } from '@/shared';
 import {
   User,
   Briefcase,

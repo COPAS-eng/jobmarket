@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { jobsApi, contractsApi } from '@/services/api';
-import type { Proposal, Contract } from '@jobmarket/shared';
+import type { Proposal, Contract } from '@/shared';
 import { toast } from 'sonner';
 
 const navItems = [

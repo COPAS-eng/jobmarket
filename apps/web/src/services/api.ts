@@ -1,6 +1,6 @@
 import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 import { getEnv } from './env';
-import type { RegisterInput, LoginInput, CreateJobInput, UpdateJobInput, CreateProposalInput, CreateContractInput, CreateMilestoneInput, UpdateProfileInput, JobQueryParams, ProfessionalQueryParams, UpdateContractInput, UpdateMilestoneInput, SubmitMilestoneInput, CreatePaymentIntentInput } from '@jobmarket/shared';
+import type { RegisterInput, LoginInput, CreateJobInput, UpdateJobInput, CreateProposalInput, CreateContractInput, CreateMilestoneInput, UpdateProfileInput, JobQueryParams, ProfessionalQueryParams, UpdateContractInput, UpdateMilestoneInput, SubmitMilestoneInput, CreatePaymentIntentInput } from '@/shared';
 
 const env = getEnv();
 

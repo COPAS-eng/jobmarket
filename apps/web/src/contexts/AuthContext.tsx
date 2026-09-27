@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { User, UserRole, RegisterInput } from '@jobmarket/shared';
+import { User, UserRole, RegisterInput } from '@/shared';
 import { api } from '@/services/api';
 
 interface AuthContextType {

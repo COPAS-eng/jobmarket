@@ -7,7 +7,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { usersApi } from '@/services/api';
-import type { Profile } from '@jobmarket/shared';
+import type { Profile } from '@/shared';
 import {
   Camera,
   Save,

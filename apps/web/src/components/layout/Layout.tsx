@@ -2,7 +2,7 @@ import { ReactNode, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/utils/cn';
-import { UserRole } from '@/shared/types';
+import { UserRole } from '@/shared';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   LayoutDashboard,

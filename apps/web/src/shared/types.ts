@@ -1,4 +1,5 @@
-import type {
+import type { z } from 'zod';
+import {
   UserRole,
   JobType,
   JobCategory,
@@ -14,22 +15,6 @@ import type {
   Availability,
 } from './enums';
 
-export type {
-  UserRole,
-  JobType,
-  JobCategory,
-  SkillCategory,
-  JobStatus,
-  ProposalStatus,
-  ContractType,
-  ContractStatus,
-  MilestoneStatus,
-  PaymentStatus,
-  SubscriptionPlan,
-  SubscriptionStatus,
-  Availability,
-};
-
 // Base entity types
 export interface BaseEntity {
   id: string;
@@ -40,8 +25,6 @@ export interface BaseEntity {
 export interface User extends BaseEntity {
   email: string;
   passwordHash: string;
-  fullName?: string;
-  avatar?: string;
   role: UserRole;
   emailVerified: boolean;
   stripeCustomerId?: string;
@@ -75,7 +58,7 @@ export interface Profile extends BaseEntity {
   linkedin?: string;
   github?: string;
   portfolio?: PortfolioItem[];
-  skills: Skill[];
+  skills?: Skill[];
 }
 
 export interface Skill extends BaseEntity {
@@ -86,6 +69,7 @@ export interface Skill extends BaseEntity {
 
 export interface Job extends BaseEntity {
   employerId: string;
+  employer?: { id: string; profile?: Profile };
   title: string;
   description: string; // Markdown
   type: JobType;
@@ -97,6 +81,7 @@ export interface Job extends BaseEntity {
   remote: boolean;
   status: JobStatus;
   skillIds: string[];
+  skills?: Skill[];
   expiresAt?: Date;
   viewsCount: number;
   applicationsCount: number;
@@ -199,7 +184,7 @@ export interface ApiError {
 
 export type ApiResponse<T> = ApiSuccess<T> | ApiError;
 
-// Auth types
+// Auth types - use validators.ts for RegisterInput/LoginInput
 export interface AuthTokens {
   accessToken: string;
   refreshToken: string;
@@ -250,6 +235,7 @@ export interface StripeConnectAccount {
   };
 }
 
+// API Request types
 export interface JobQueryParams {
   q?: string;
   type?: JobType[];
@@ -263,6 +249,20 @@ export interface JobQueryParams {
   page?: number;
   limit?: number;
   sort?: 'createdAt' | 'budgetMax' | 'viewsCount';
+  order?: 'asc' | 'desc';
+}
+
+export interface ProfessionalQueryParams {
+  q?: string;
+  skills?: string[];
+  availability?: Availability[];
+  rateMin?: number;
+  rateMax?: number;
+  location?: string;
+  languages?: string[];
+  page?: number;
+  limit?: number;
+  sort?: 'hourlyRate' | 'createdAt' | 'rating';
   order?: 'asc' | 'desc';
 }
 
@@ -287,18 +287,4 @@ export interface UpdateMilestoneInput {
 export interface SubmitMilestoneInput {
   deliveryNotes?: string;
   attachments?: string[];
-}
-
-export interface ProfessionalQueryParams {
-  q?: string;
-  skills?: string[];
-  availability?: Availability[];
-  rateMin?: number;
-  rateMax?: number;
-  location?: string;
-  languages?: string[];
-  page?: number;
-  limit?: number;
-  sort?: 'hourlyRate' | 'createdAt' | 'rating';
-  order?: 'asc' | 'desc';
 }
