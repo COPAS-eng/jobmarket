@@ -27,11 +27,10 @@
     "test:ui": "npm run test:ui --workspace=apps/api",
     "test:coverage": "npm run test:coverage --workspaces",
     "test:e2e": "npm run test:e2e --workspace=apps/web",
-    "prepare": "husky install"
+    
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
-    "husky": "^9.0.11",
     "prettier": "^3.2.5",
     "turbo": "^1.13.0"
   },
