@@ -1,0 +1,12 @@
+# Ignore everything except apps/web
+*
+!apps/web
+!apps/web/**
+!vercel.json
+
+# Also ignore node_modules, build outputs
+**/node_modules
+**/dist
+**/build
+**/.vercel
+**/.git
