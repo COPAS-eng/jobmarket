@@ -26,9 +26,8 @@
     "test": "npm run test --workspaces",
     "test:ui": "npm run test:ui --workspace=apps/api",
     "test:coverage": "npm run test:coverage --workspaces",
-    "test:e2e": "npm run test:e2e --workspace=apps/web",
-    
-  },
+"test:e2e": "npm run test:e2e --workspace=apps/web"
+   },
   "devDependencies": {
     "concurrently": "^8.2.2",
     "prettier": "^3.2.5",
